@@ -1,4 +1,4 @@
-// @ts-nocheck - O3 compact snapshot 2026-10-25.02; generated from source.
+// @ts-nocheck - TEST flight factor 0.1 2026-10-25.03; generated from source.
 // supabase/functions/game-command/index.ts
 import { createClient } from "npm:@supabase/supabase-js@2.117.2";
 
@@ -83,7 +83,8 @@ function attackSlots(level) {
 
 // src/realm-config.js
 var REALM_CONFIG = Object.freeze({
-  galaxyFlightTimeFactor: 3,
+  // TEST ONLY: accelerated galaxy/PvP flights for local combat verification.
+  galaxyFlightTimeFactor: 0.1,
   // Rapid Fire v6 rules; the active combat engine is selected by the administrator.
   combat: Object.freeze({
     rapidFire: Object.freeze({
