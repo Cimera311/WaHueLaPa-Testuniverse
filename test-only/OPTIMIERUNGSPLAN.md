@@ -278,3 +278,26 @@ Korrektur ergänzen statt dessen Historie zu überschreiben.
 - Lokale Archivchecks wurden mit den aufgezeichneten LF-Bytes ausgefuehrt; die aus dem Windows-Checkout kopierten historischen Archive enthielten CRLF. Historische Releases und Pruefsummen werden im PR nicht geaendert.
 - Parallel eingegangener main-Stand 01fbcf81e0bad553eeecb91cb4119dd30bb9c1f9 aendert nur index.html/src/style.css; keine Dateikollision mit O1. GitHub prueft den Merge-Stand.
 - O1 bleibt IN ARBEIT bis lokale Anmeldung/Aktion/Neuladen und Baseline dokumentiert sind. Diese Vorbereitung verspricht keine kuerzeren Ladezeiten.
+
+### 2026-10-25 - O1: Erste lokale Stichprobe mit PvE
+
+- Verantwortlich: Sebastian (Spielaktionen), Codex (Auswertung). Status bleibt IN ARBEIT.
+- Abruf: 25.10.2026, ca. 21:46 Uhr Europe/Berlin; Docker-Logs der letzten 30 Minuten aus `supabase_edge_runtime_WahuelapaTest`. Das Abruffenster ist keine kontrollierte 30-Minuten-Lastmessung. Keine geplante Aufwaermphase, keine festgelegte Anfragerate.
+- Testinstallation: Windows/Docker, lokaler swift-handler, Metrics-Rate 1. Bundle O1 2026-10-25.01; zuvor im lokalen Repo und installierten Handler gegen LF-SHA256 596cb558cdef5a7bc6a0b0f7db197ad8a1bc9b2d42ec29e8d37c93522c644e0f geprueft. Windows-CRLF erklaert den abweichenden Rohdatei-Hash.
+- Datenumfang: 44 erfasste HTTP-Aufrufe, alle Status 200. 42 ohne Retry, zwei mit je einem Retry; 17 globale World-Ereignisse, vier PvE-Kampfresolver, kein PvP-Kampf. Exakte Hardware-/Docker-Limits, DB-Stand und gleichzeitig offene Clients nicht erfasst.
+- Snapshotgroesse pro Versuch: 1.163.872 bis 1.202.165 UTF-8-Bytes (erneut serialisiertes JSON, keine komprimierten Netzwerkbytes).
+
+| Auftrag | Anzahl | p50 Gesamtzeit | p95 | p99 | Fehler |
+|---|---:|---:|---:|---:|---:|
+| Sync | 30 | 785,745 ms | 1.989,211 ms | 2.082,682 ms | 0 |
+| Bauen | 5 | 657,173 ms | 1.058,104 ms | 1.058,104 ms | 0 |
+| Reparieren | 1 | 793,088 ms | 793,088 ms | 793,088 ms | 0 |
+| Piratenauftrag | 8 | 650,605 ms | 985,367 ms | 985,367 ms | 0 |
+
+- Die Quantile verwenden nearest rank. Insbesondere die sehr kleinen Gruppen liefern keine belastbaren Tail-Latenzen oder Kapazitaetsaussagen.
+- Kampfaufruf A: Sync 1.303,425 ms gesamt; drei PvE-Resolver zusammen 32,366 ms; Simulation inklusive Kampf 174,332 ms; Snapshot 282,061 ms; Commit 733,676 ms; sieben globale Ereignisse; kein Retry.
+- Kampfaufruf B: Sync 1.928,849 ms gesamt; ein PvE-Resolver 24,075 ms; Simulation inklusive Kampf 305,136 ms; Snapshot 877,245 ms; Commit 636,371 ms; ein globales Ereignis; kein Retry.
+- Interpretation: Bei diesen Aufrufen ist der Snapshot-/Commit-Pfad groesser als die reine PvE-Kampfberechnung. RPC-Zeiten enthalten Transport und Clientarbeit; die Messung isoliert keine SQL-/DB-Ausfuehrungszeit. Kampfzeit ist in Simulation enthalten und darf nicht dazuaddiert werden.
+- Abnahmegrenze: erfolgreiche Serverantworten fuer Sync, Bauen, Reparieren und Piratenaktionen belegt; keine vollstaendige manuelle Persistenzabnahme oder Wiederholbarkeit behauptet. Grosse PvP-Kaempfe, kontrolliertes Routen-Nachholen, Forschung und zwei unabhaengige Spieler noch nicht gemessen. Keine Gleichsetzung mit Live-Micro.
+- Naechster Schritt: O3-Verbraucher von Snapshot und projectPvP inventarisieren und einen rueckschaltbaren Payload-Vergleich vorbereiten. Vor Abnahme einen kontrollierten Vorher-/Nachher-Lauf durchfuehren; O1 bleibt fuer fehlende Szenarien offen.
+- Aenderungsumfang dieses Eintrags: nur Dokumentation; keine SQL, kein neues Bundle, kein Deployment und keine Spielerdaten im Repo.
