@@ -1,6 +1,6 @@
 {
   "format": 1,
-  "latest": "2026-10-25.02",
+  "latest": "2026-10-25.03",
   "releases": [
     {
       "version": "2026-10-09.01",
@@ -253,6 +253,13 @@
       "sourceCommit": "b1b330e9d7ab3f91340cd05b6e7dba1eaaa022c7",
       "description": "O3: optionaler kompakter Snapshot, vier aktuelle Angriffsberichte und Archiv erst bei Bedarf",
       "sha256": "2365b753ded5cbf7935d521d40211b5a3e141cb0778289b7d01988b13ef9207d"
+    },
+    {
+      "version": "2026-10-25.03",
+      "createdAt": "2026-10-25T21:32:11.714Z",
+      "sourceCommit": "9962391211c01dbb80a5f41d5913beb92e3bafb2",
+      "description": "TEST ONLY: Galaxie-/PvP-Flugzeitfaktor 0.1 fuer Aster-2-Abnahmetest",
+      "sha256": "e6db8a24f69fac0e16e035212a8038d67175ea610e8f935beedeac61091a6ba1"
     }
   ]
 }

@@ -2,7 +2,8 @@
 // Energieexponenten sind pro Planetentyp und Kraftwerk getrennt konfigurierbar.
 // fuelPower ist fuer ein kuenftiges Treibstoffkraftwerk reserviert (noch ohne Effekt).
 export const REALM_CONFIG = Object.freeze({
-  galaxyFlightTimeFactor: 3,
+  // TEST ONLY: accelerated galaxy/PvP flights for local combat verification.
+  galaxyFlightTimeFactor: 0.1,
   // Rapid Fire v6 rules; the active combat engine is selected by the administrator.
   combat: Object.freeze({
     rapidFire: Object.freeze({

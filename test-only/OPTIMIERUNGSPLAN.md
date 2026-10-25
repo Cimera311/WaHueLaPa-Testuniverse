@@ -329,3 +329,16 @@ Korrektur ergänzen statt dessen Historie zu überschreiben.
 - Testfixture fuer Kontotrennung und verspaetete Berichtsantworten oeffnet nun die Berichtssektion vor dem Request und stellt deren Navigationsabhaengigkeiten bereit. Nachlade-Test prueft zusaetzlich, dass ein echter Controller-Sync bei offenem Archiv keinen weiteren Berichtsabruf startet.
 - Parallel gemergten main-Stand a024855a012c7f4c2cdd014642a7d9a98bf277ec mit mobilen Routen-Buttons erhalten und in den Branch integriert. Keine fremden UI-Aenderungen zurueckgenommen.
 - Lokale Produktinstallation weiterhin nicht umgestellt. SQL-Vergleich nur transaktional zurueckgerollt; keine Live-Aenderung. Ein kontrollierter Vorher-/Nachher-HTTP-Lauf folgt nach dem Merge und Start mit -CompactSnapshot.
+
+### 2026-10-25 - Testflugzeiten fuer PvP-Abnahme beschleunigt
+
+- Auftrag Sebastian: Flugzeitfaktor im Test-Realm auf 0,1 setzen, anschliessend Angriff auf Aster 2.
+- Branch: codex/test-flight-factor-01; Basis 62a9c7ab9f997b95f8d6dc19a5575bd1afd7a1ad.
+- Aenderung: aktiver REALM_CONFIG.galaxyFlightTimeFactor von 3 auf 0.1; Browser und vollstaendige Game-command gemeinsam aktualisiert. Version 2026-10-25.03.
+- Wirkung: neue gemeinsame Galaxiefluege inklusive PvP ca. 30-mal kuerzer als zuvor (auf die ungekuerzte Basis bezogen Faktor 0,1). Die bisherige 60-Sekunden-Basismindestzeit wird zu sechs Sekunden. Langsamstes Schiff, Forschung und Treibstoffrechnung bleiben erhalten.
+- Bereits gestartete Missionen behalten ihre gespeicherten Ankunfts-/Rueckkehrzeiten. Tutorial-interne Flugformeln und separate Piraten-Realmfaktoren bleiben unveraendert. Fuer Aster 2 ist der gemeinsame Galaxiefaktor massgeblich.
+- Aktivierung: Test-PR mergen, lokal main aktualisieren, Update-Test.ps1 ausfuehren, Browser Strg+F5. Falls die Function nicht automatisch neu laedt, vorhandene Testprozesse wie bisher mit -Metrics -CompactSnapshot neu starten. Keine SQL erforderlich.
+- TEST ONLY: nicht in einen Live-Optimierungspatch uebernehmen. Ein LIVE->TEST-Sync ersetzt normale Spielquellen und kann den Faktor zuruecksetzen; kein unkoordinierter Sync waehrend des Kampftests.
+- Rollback: Faktor 3 wiederherstellen und Browser/Bundle gemeinsam bauen/aktualisieren; bestehende Fluege nicht nachtraeglich umschreiben.
+- PR: https://github.com/Cimera311/WaHueLaPa-Testuniverse/pull/13. Automatisch: 43/43 gezielte Flug-/PvP-/Cargo-/Compact-Tests erfolgreich, Website-Build und Test-Tools.ps1 (Kopie/Sicherung/Idempotenz/Zielschutz) erfolgreich. Vollsuite und aktuelle GitHub-Checks siehe PR. Kampf gegen Aster 2 noch nicht ausgefuehrt; der Angriff erfolgt durch Sebastian.
+- News-Entwurf, nur Test: Fuer den PvP-Test sind neue Galaxiefluege beschleunigt. Laufende Fluege behalten ihre bisherigen Zeiten. Keine Live-Aenderung.
