@@ -76,7 +76,7 @@ Statuswerte: **OFFEN**, **IN ARBEIT**, **PR BEREIT**, **LOKAL ABGENOMMEN**, **LI
 | T0 | Isolierter Testbetrieb und Startwerkzeuge | – | LOKAL ABGENOMMEN | Einrichtungschat / Test-PR #2 |
 | O1 | Messpunkte und reproduzierbare Baseline | T0 | IN ARBEIT | Codex / `codex/o1-command-metrics` / [PR #6](https://github.com/Cimera311/WaHueLaPa-Testuniverse/pull/6); lokale Baseline offen |
 | O2 | Serverseitiger Wartungsmodus und Restore-Probe | T0 | OFFEN | – |
-| O3 | Snapshot/Payload und Lesezugriffe entlasten | O1 | OFFEN | – |
+| O3 | Snapshot/Payload und Lesezugriffe entlasten | O1 | IN ARBEIT | Codex / `codex/o3-compact-snapshot` / kompakter Snapshot |
 | O4 | Spielerbezogene Commands und atomare Idempotenz | O1, O2; O3 auswerten | OFFEN | – |
 | O5 | Dauerhafte Ereignisse und Worker | O4-Verträge festgelegt | OFFEN | – |
 | O6 | Kämpfe als dauerhafte Jobs | O5 | OFFEN | – |
@@ -301,3 +301,21 @@ Korrektur ergänzen statt dessen Historie zu überschreiben.
 - Abnahmegrenze: erfolgreiche Serverantworten fuer Sync, Bauen, Reparieren und Piratenaktionen belegt; keine vollstaendige manuelle Persistenzabnahme oder Wiederholbarkeit behauptet. Grosse PvP-Kaempfe, kontrolliertes Routen-Nachholen, Forschung und zwei unabhaengige Spieler noch nicht gemessen. Keine Gleichsetzung mit Live-Micro.
 - Naechster Schritt: O3-Verbraucher von Snapshot und projectPvP inventarisieren und einen rueckschaltbaren Payload-Vergleich vorbereiten. Vor Abnahme einen kontrollierten Vorher-/Nachher-Lauf durchfuehren; O1 bleibt fuer fehlende Szenarien offen.
 - Aenderungsumfang dieses Eintrags: nur Dokumentation; keine SQL, kein neues Bundle, kein Deployment und keine Spielerdaten im Repo.
+
+### 2026-10-25 - O3: Optionaler kompakter Snapshot
+
+- Verantwortlich: Codex; Branch codex/o3-compact-snapshot; Basis f92d0cfb2d9e22fe224a48b2e219455e53c767b0. Offene PRs bei Beginn: keine. Status OFFEN -> IN ARBEIT; Code-PR vorbereitet, lokale HTTP-Aktivierung noch offen.
+- Umfang: additiver Service-RPC imperium_pvp_snapshot_compact, Format compact-v1. Alle aktiven Angriffe weltweit vollstaendig; abgeschlossene eigene/verteidigte/unterstuetzte Berichte separat auf maximal vier Karten begrenzt. Bericht-/Replaytabellen und Writer bleiben unveraendert.
+- Consumer-Inventar und Anleitung: [O3-KOMPAKTER-SNAPSHOT.md](O3-KOMPAKTER-SNAPSHOT.md).
+- Source: server-service.js, server-world.js, server-metrics.js und Function-Entrypoint; neue Tests; Start-Test -CompactSnapshot; Auswertung nach Snapshotmodus getrennt; compare-snapshots.mjs. Drei Dashboard-Bundles werden gemeinsam gebaut und als Version 2026-10-25.02 archiviert.
+- SQL: supabase/pvp-snapshot-compact.sql, nur lokale Test-DB. SECURITY DEFINER mit leerem search_path, EXECUTE ausschliesslich service_role; keine neuen Tabellen oder Browserrechte. Legacy-RPC und Commit nicht ersetzt.
+- Restore-Punkt: kompletter lokaler pg_dump im ignorierten Arbeitsbereich vor SQL-Vergleich, 4.168.534 komprimierte Bytes; kein Backup im Repo, keine Restore-Probe behauptet.
+- Lokaler eingefrorener Vergleich, 22:01 Uhr Europe/Berlin: alle 14 vorhandenen Spieler; alter Snapshot 1.173.390 Bytes, kompakt 531.231-537.690 Bytes, 54,18-54,73 % weniger. Commit-Welt ca. 54,93 % kleiner. Alle Simulationsergebnisse und Browserprojektionen identisch. Vergleich enthielt 217 abgeschlossene und keine aktiven PvP-Angriffe. Komplette SQL-Installation/Nebeneffekte zurueckgerollt, kein World-Commit.
+- Automatisch: gezielte Unit-/SQL-/Handlerpruefungen fuer eigene/Support-Berichte, Vierer-Liste, Tie-Reihenfolge, alte aktive/wartende Rueckkehrer, neue Rueckkehr, Konfliktretry, Idempotenz, Rechte und unveraenderte Historie. Vollsuite, Build und CI werden vor Uebergabe ergaenzt.
+- Nicht getestet: echte HTTP-Latenzen des aktiven kompakten Pfads, manuelle lokale Abnahme, grosse PvP-Flotten und Mehrspielerlast. Byteersparnis ist keine Latenz-/Kapazitaetsgarantie. O1 bleibt fuer fehlende Szenarien offen.
+- Aktivierung nach Merge: lokale neue SQL einmalig, Start-Test.ps1 -Metrics -CompactSnapshot, Browser neu laden und Anleitung pruefen. Kein Cloud-Deploy.
+- Rollback: ohne -CompactSnapshot neu starten; alter RPC bleibt erhalten, kein Datenrestore noetig. Optional neue RPC danach droppen.
+- Live: nicht begonnen. News-Entwurf nur vorbereitet in O3-Anleitung.
+- Naechster Schritt: kontrollierter Legacy/Compact-Lauf bei gleichem Datenstand; aktive Flotten, wartende Ladung und Berichte manuell bestaetigen.
+
+- O3-Praezisierung durch Sebastian: nur die letzten vier Angriffsberichte in der Vorschau; alles Weitere erst in der Berichtssektion laden. Serverseitige und SQL-Limits auf vier gesetzt. Eifrige Browser-Archivabfragen bei PvP/Verteidigung/Sync/Angriffstart sowie pro aktiver Mission entfernt; Archiv-Pagination bleibt erhalten. Browser-Integrationstest prueft Nullabfragen ausserhalb des Archivs, einmaliges Laden beim Oeffnen und Nachladen weiterer Seiten.

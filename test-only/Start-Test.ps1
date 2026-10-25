@@ -1,7 +1,8 @@
 param(
     [string]$SupabaseDir = (Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'Docker\Subabase\WahuelapaTest'),
     [string]$PublishableKey = '',
-    [switch]$Metrics
+    [switch]$Metrics,
+    [switch]$CompactSnapshot
 )
 $ErrorActionPreference = 'Stop'
 $repoDir = Split-Path $PSScriptRoot -Parent
@@ -57,12 +58,13 @@ try {
     $quotedDir = $SupabaseDir.Replace("'", "''")
     $quotedCli = $cli.Replace("'", "''")
     $command = "Set-Location -LiteralPath '$quotedDir'; & '$quotedCli' functions serve swift-handler --no-verify-jwt"
-    if ($Metrics) {
+    if ($Metrics -or $CompactSnapshot) {
         $metricsFile = Join-Path $PSScriptRoot '.runtime\metrics.env'
-        [IO.File]::WriteAllText($metricsFile, "GAME_COMMAND_METRICS_RATE=1" + [Environment]::NewLine, (New-Object Text.UTF8Encoding($false)))
+        [IO.File]::WriteAllText($metricsFile, "GAME_COMMAND_METRICS_RATE=$(if ($Metrics) { 1 } else { 0 })" + [Environment]::NewLine + "GAME_COMMAND_SNAPSHOT=$(if ($CompactSnapshot) { 'compact' } else { 'legacy' })" + [Environment]::NewLine, (New-Object Text.UTF8Encoding($false)))
         $quotedMetrics = $metricsFile.Replace("'", "''")
         $command += " --env-file '$quotedMetrics'"
-        Write-Host 'O1-Messung aktiv: ein kompakter Datensatz je Auftrag im Edge-Log.'
+        if ($Metrics) { Write-Host 'O1-Messung aktiv: ein kompakter Datensatz je Auftrag im Edge-Log.' }
+        if ($CompactSnapshot) { Write-Host 'O3 kompakter Snapshot aktiv. Neue Test-SQL muss bereits installiert sein.' }
     }
     $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($command))
     Start-Process powershell.exe -ArgumentList @('-NoProfile','-NoExit','-EncodedCommand',$encoded)

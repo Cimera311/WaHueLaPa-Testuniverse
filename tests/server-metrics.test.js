@@ -53,7 +53,7 @@ test('unknown input labels and logging destination failures cannot leak or break
 test('summary separates action groups and calculates nearest-rank percentiles',()=>{
  const rows=Array.from({length:100},(_,i)=>({kind:'game_command_metrics',schema:1,type:'sync',action:'other',status:i===99?503:200,totalMs:i+1,ms:{snapshot:i+1},responseBytes:42,retries:i===99?1:0,attempts:[{snapshotBytes:100}]}));
  const parsed=parseMetrics('noise\n'+rows.map(r=>'[Info] '+JSON.stringify(r)).join('\n')+'\ninvalid');assert.equal(parsed.length,100);
- const result=summarize(parsed)['sync/other'];assert.deepEqual(result.totalMs,{p50:50,p95:95,p99:99});assert.equal(result.errorRate,.01);assert.deepEqual(result.retries,{'0':99,'1':1});
+ const result=summarize(parsed)['legacy/sync/other'];assert.deepEqual(result.totalMs,{p50:50,p95:95,p99:99});assert.equal(result.errorRate,.01);assert.deepEqual(result.retries,{'0':99,'1':1});
 });
 test('deployable handler logs auth failures, malformed input, success and validation failure exactly once',async()=>{
  const source=readFileSync(new URL('../supabase/dashboard/game-command.ts',import.meta.url),'utf8').replace(/^import .* from "npm:.*";$/gm,'');
