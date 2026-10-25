@@ -1,14 +1,13 @@
-# WaHueLaPa TEST-only files
+# Dateien fuer das Testrepo
 
-This folder is preserved during the manual LIVE → TEST synchronization.
+Dieser Ordner bleibt bei **Sync LIVE to TEST (manual)** erhalten.
 
-- `test-only/overrides/` mirrors paths in the repository. After syncing LIVE, its files overwrite the matching TEST paths.
-- Example: `test-only/overrides/src/cloud-config.js` overwrites `src/cloud-config.js`.
-- Never store service-role keys, database passwords, or other secrets here.
-- `.github/`, `test-only/`, `TESTSERVER.md`, and `src/cloud-config.js` are also excluded from deletion and replacement by the sync.
+- `Start-Test.ps1`: Docker/Supabase, lokale Game-command und Website starten.
+- `Update-Test.ps1`: aktuelle Dashboard-Game-command aus dem ausgecheckten Branch
+  lokal kopieren; vorherige Version sichern und Hash pruefen.
+- `local-server.mjs`: lokale Browser-Konfiguration liefern, ohne Spielquellen zu aendern.
+- `overrides/`: Pfade relativ zur Repo-Wurzel; werden nach jedem Sync uebernommen.
+  `overrides/src/cloud-config.js` verhindert eine voreingestellte Live-Verbindung.
+- `.runtime/`: ignorierte lokale Laufzeitdaten; keine privaten Schluessel speichern.
 
-**Safety:** use a separate Supabase project or local backend for TEST. The sync checks and refuses the known production Supabase URL and LIVE redirect URL. It does not copy database contents or deploy Edge Functions.
-
-**Run:** Test repository → Actions → **Sync LIVE to TEST (manual)** → Run workflow (main).
-
-**Important:** The sync updates the test `main` branch, overwriting ordinary test-side code changes. Preserve experiments in feature branches or in explicit test-only overrides. Production is never modified. If branch protection blocks pushes, update permissions or use a PR-based sync design instead.
+Vollstaendige Anleitung: [TESTSERVER.md](../TESTSERVER.md).
