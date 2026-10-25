@@ -885,3 +885,16 @@ button .action-art{width:26px;height:26px;margin-right:7px;vertical-align:middle
  .fleet-navigation[data-active-group="hangar"] .fleet-section-icon{display:block;font-size:19px;line-height:20px}
  .fleet-navigation[data-active-group="hangar"] .fleet-section-short{display:block}
 }
+
+/* Trade route editor: compact mobile action dock, preserving desktop controls. */
+.route-action-icon,.route-action-short{display:none}
+@media(max-width:600px){
+ .trade-editor .trade-save{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;position:sticky;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:12;margin-top:12px;padding:7px 0;background:#081b29fa}
+ .trade-editor .trade-save>button:not(.route-back){min-width:0;min-height:52px;max-width:100%;padding:6px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;line-height:1.15}
+ .trade-editor .trade-save .route-action-long{display:none}
+ .trade-editor .trade-save .route-action-short{display:inline}
+ .trade-editor .trade-save .route-action-icon{display:inline;font-size:17px;line-height:19px}
+ .trade-editor .trade-save>.route-back{grid-column:1/-1;background:transparent;border:0;box-shadow:none;color:#9dc9d8;min-height:30px;padding:4px;font-size:12px}
+ .trade-editor .trade-save>button:only-child{grid-column:1/-1}
+ .trade-editor form{padding-bottom:12px}
+}
