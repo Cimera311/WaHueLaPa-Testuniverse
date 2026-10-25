@@ -45,6 +45,8 @@ try {
     try { & (Join-Path $PSScriptRoot 'Restart-TestEdge.ps1') } catch { $rejected = $true }
     if (!$rejected) { throw 'Failed reload was silently accepted' }
     Write-Host 'PowerShell copy, backup, idempotence, target protection and mocked Edge reload checks passed.'
+    # The deliberately failed mock must not leak its native exit code to the CI shell.
+    $global:LASTEXITCODE = 0
  } finally {
     Remove-Variable -Name WahuelapaReloadCalls,WahuelapaReloadRunning,WahuelapaReloadFail -Scope Global -ErrorAction SilentlyContinue
     $tempRoot = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd('\') + '\'
