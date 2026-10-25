@@ -15,7 +15,7 @@ Deno.serve(async req=>{
   const {data,error}=await measureAsync(metrics,'auth',()=>db.auth.getUser(token));
   if(error||!data.user)return respond({error:'Anmeldung abgelaufen.'},401);
   const raw=await req.text();if(raw.length>32000)return respond({error:'Anfrage zu groß.'},413);
-  const result=await runServerCommand(db,data.user.id,JSON.parse(raw),metrics);
+  const result=await runServerCommand(db,data.user.id,JSON.parse(raw),metrics,{snapshot:Deno.env.get('GAME_COMMAND_SNAPSHOT')});
   return respond(result);
  }catch(error){
   if(error?.code==='WORLD_SAVE_INVALID'){

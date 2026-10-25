@@ -4,7 +4,7 @@ export function summarize(records){
  const percentiles=values=>{values.sort((a,b)=>a-b);return Object.fromEntries([50,95,99].map(p=>['p'+p,values.length?values[Math.ceil(values.length*p/100)-1]:null]));};
  for(const record of records){
   if(record.kind!=='game_command_metrics'||record.schema!==1)continue;
-  const key=record.type+'/'+record.action;
+  const key=(record.snapshotMode||'legacy')+'/'+record.type+'/'+record.action;
   (groups[key]??=[]).push(record);
  }
  return Object.fromEntries(Object.entries(groups).map(([key,rows])=>{

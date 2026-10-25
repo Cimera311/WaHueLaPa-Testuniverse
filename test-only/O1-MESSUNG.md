@@ -39,7 +39,7 @@ Standardcontainer: `supabase_edge_runtime_WahuelapaTest`; bei abweichendem Namen
 node test-only/summarize-metrics.mjs test-only/.runtime/metrics-ZEITSTEMPEL.jsonl
 ```
 
-Die Auswertung gruppiert nach Auftrag/Aktion und zeigt p50/p95/p99 (nearest rank),
+Die Auswertung gruppiert nach Snapshotmodus/Auftrag/Aktion und zeigt p50/p95/p99 (nearest rank),
 Fehlerquote fuer HTTP >=400, Antwortbytes, Snapshotbytes pro Versuch und Retryverteilung.
 Mit wenigen Werten sind insbesondere p95/p99 wenig aussagekraeftig. Sampling fuer
 Vergleichslaeufe gleich lassen; Standard des Handlers ist aus, Werte 0 bis 1.

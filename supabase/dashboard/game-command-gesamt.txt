@@ -1,4 +1,4 @@
-// @ts-nocheck - O1 metrics 2026-10-25.01; generated from source.
+// @ts-nocheck - O3 compact snapshot 2026-10-25.02; generated from source.
 // supabase/functions/game-command/index.ts
 import { createClient } from "npm:@supabase/supabase-js@2.117.2";
 
@@ -1682,7 +1682,7 @@ function createCommandMetrics({ rate = 0, random = Math.random, clock = () => pe
   rate = Number(rate);
   if (!Number.isFinite(rate) || rate <= 0 || random() >= Math.min(1, rate)) return void 0;
   const started = clock(), request = id(), totals = {}, counts = {}, attempts = [];
-  let current, finished = false, type = "unknown", action = "other", responseBytes = 0;
+  let current, finished = false, type = "unknown", action = "other", responseBytes = 0, snapshotMode = "legacy";
   const round = (n) => Math.round(n * 1e3) / 1e3;
   const stop = (name) => {
     const begin = clock();
@@ -1693,6 +1693,9 @@ function createCommandMetrics({ rate = 0, random = Math.random, clock = () => pe
     };
   };
   return {
+    mode(value2) {
+      snapshotMode = value2 === "compact" ? "compact" : "legacy";
+    },
     label(input) {
       type = types.has(input?.type) ? input.type : "unknown";
       action = actions.has(input?.action?.type) ? input.action.type : "other";
@@ -1729,7 +1732,7 @@ function createCommandMetrics({ rate = 0, random = Math.random, clock = () => pe
       if (finished) return;
       finished = true;
       const rounded = (obj) => Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, round(v)]));
-      const record = { kind: "game_command_metrics", schema: 1, request, type, action, status, totalMs: round(clock() - started), ms: rounded(totals), counts, responseBytes, retries: Math.max(0, attempts.length - 1), attempts: attempts.map((a) => ({ ...a, ms: rounded(a.ms) })) };
+      const record = { kind: "game_command_metrics", schema: 1, request, type, action, snapshotMode, status, totalMs: round(clock() - started), ms: rounded(totals), counts, responseBytes, retries: Math.max(0, attempts.length - 1), attempts: attempts.map((a) => ({ ...a, ms: rounded(a.ms) })) };
       try {
         emit(JSON.stringify(record));
       } catch {
@@ -2711,7 +2714,7 @@ function projectPvP(w, uid) {
     colonies: w.planets.filter((p) => p.owner_id && !p.reserved).map((p) => ({ id: p.id, protectedUntil: p.protection_ended ? 0 : (p.colonized_at || w.now) + COLONY_PROTECTION })),
     outgoing: w.attacks.filter((m) => m.attacker_id === uid && m.status !== "returned").map((m) => ({ id: m.id, from: m.from, to: m.to, fleet: m.status === "outbound" ? m.fleet : m.survivors, status: m.status, awaitingUnload: !!m.awaitingUnload, cargo: { ...m.cargo || zero() }, arrival: m.arrival_at, returnAt: m.return_at })),
     incoming: w.attacks.filter((m) => m.defender_id === uid && m.status === "outbound" && m.warning_at <= w.now).map((m) => ({ id: m.id, to: m.to, commander: w.saves.find((r) => r.user_id === m.attacker_id)?.state.name || "Commander", arrival: m.arrival_at })),
-    reports: w.attacks.filter((m) => (m.attacker_id === uid || m.defender_id === uid || m.report?.supporting?.some((g) => g.owner === uid)) && m.report).sort((a, b) => b.arrival_at - a.arrival_at).slice(0, 30).map((m) => {
+    reports: [...w.attacks, ...w.attackReports || []].filter((m) => (m.attacker_id === uid || m.defender_id === uid || m.report?.supporting?.some((g) => g.owner === uid)) && m.report).sort((a, b) => b.arrival_at - a.arrival_at || a.id.localeCompare(b.id)).slice(0, 4).map((m) => {
       const support = m.report.supporting?.filter((g) => g.owner === uid), isAttacker = m.attacker_id === uid;
       return { id: m.id, from: m.from, to: m.to, returnAt: m.return_at, ...Object.fromEntries(Object.entries(m.report).filter(([key]) => key !== "trace")), ownSide: isAttacker ? "attacker" : "defender", isSupport: !!support?.length, attackerName: stateOf(w, m.attacker_id).name, defenderName: stateOf(w, m.defender_id).name, ownBefore: support?.length ? Object.fromEntries(Object.keys(SHIPS).map((k) => [k, support.reduce((n, g) => n + (g.before[k] || 0), 0)])) : isAttacker ? m.report.attackerBefore : m.report.hostBefore || m.report.defenderBefore, ownAfter: support?.length ? Object.fromEntries(Object.keys(SHIPS).map((k) => [k, support.reduce((n, g) => n + (g.after[k] || 0), 0)])) : isAttacker ? m.report.attackerAfter : m.report.hostAfter || m.report.defenderAfter };
     })
@@ -2735,7 +2738,9 @@ async function missionId(uid, requestId) {
   const h = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
   return h.slice(0, 8) + "-" + h.slice(8, 12) + "-" + h.slice(12, 16) + "-" + h.slice(16, 20) + "-" + h.slice(20);
 }
-async function runServerCommand(db, uid, input, metrics) {
+async function runServerCommand(db, uid, input, metrics, options = {}) {
+  const compact = options.snapshot === "compact";
+  metrics?.mode(compact ? "compact" : "legacy");
   metrics?.label(input);
   if (!uuid.test(uid) || !input || typeof input !== "object") throw Error("Ung\xFCltige Anfrage.");
   const mutating = input.type !== "sync";
@@ -2744,7 +2749,7 @@ async function runServerCommand(db, uid, input, metrics) {
     if (![3, 4, 5, 6, 7].includes(input.engine)) throw Error("Unbekannte Kampfengine.");
     value(await measureAsync(metrics, "admin", () => db.rpc("imperium_set_combat_engine", { p_uid: uid, p_engine: input.engine })));
     try {
-      return await runServerCommand(db, uid, { type: "sync" }, metrics);
+      return await runServerCommand(db, uid, { type: "sync" }, metrics, options);
     } finally {
       metrics?.label(input);
     }
@@ -2753,14 +2758,17 @@ async function runServerCommand(db, uid, input, metrics) {
   const eventId = mutating ? await missionId(uid, requestId) : null, combatSeed = crypto.randomUUID();
   for (let retry = 0; retry < 5; retry++) {
     metrics?.attempt();
-    const snapshot = value(await measureAsync(metrics, "snapshot", () => db.rpc("imperium_pvp_snapshot", { p_uid: uid, p_request_id: requestId })));
+    const snapshot = value(await measureAsync(metrics, "snapshot", () => db.rpc(compact ? "imperium_pvp_snapshot_compact" : "imperium_pvp_snapshot", { p_uid: uid, p_request_id: requestId })));
     metrics?.snapshot(snapshot);
+    if (compact && (snapshot.snapshotFormat !== "compact-v1" || !Array.isArray(snapshot.attackReports))) throw Object.assign(Error("Kompakter Snapshot ist inkompatibel. Bitte Test-SQL pruefen."), { status: 503 });
     if (snapshot.receipt && JSON.stringify(snapshot.receipt) !== JSON.stringify(input)) {
       const canonical = (v) => Array.isArray(v) ? v.map(canonical) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, canonical(v[k])])) : v;
       if (JSON.stringify(canonical(snapshot.receipt)) !== JSON.stringify(canonical(input))) throw Error("Diese Auftrags-ID wurde bereits anders verwendet.");
     }
     const w = measure(metrics, "simulation", () => processWorld(snapshot, uid, snapshot.receipt ? { type: "sync" } : { ...input, eventId, combatSeed }, metrics));
-    const ok = value(await measureAsync(metrics, "commit", () => db.rpc("imperium_pvp_commit", { p_world: w, p_expected: snapshot.settings.epoch, p_uid: uid, p_request_id: requestId, p_payload: input })));
+    const { attackReports, snapshotFormat, ...compactWorld } = w;
+    const commitWorld = compact ? compactWorld : w;
+    const ok = value(await measureAsync(metrics, "commit", () => db.rpc("imperium_pvp_commit", { p_world: commitWorld, p_expected: snapshot.settings.epoch, p_uid: uid, p_request_id: requestId, p_payload: input })));
     metrics?.committed(ok);
     if (!ok) continue;
     const row = value(await measureAsync(metrics, "read", () => db.from("game_saves").select("state,revision").eq("user_id", uid).maybeSingle()));
@@ -2790,7 +2798,7 @@ Deno.serve(async (req) => {
     if (error || !data.user) return respond({ error: "Anmeldung abgelaufen." }, 401);
     const raw = await req.text();
     if (raw.length > 32e3) return respond({ error: "Anfrage zu gro\xDF." }, 413);
-    const result2 = await runServerCommand(db, data.user.id, JSON.parse(raw), metrics);
+    const result2 = await runServerCommand(db, data.user.id, JSON.parse(raw), metrics, { snapshot: Deno.env.get("GAME_COMMAND_SNAPSHOT") });
     return respond(result2);
   } catch (error) {
     if (error?.code === "WORLD_SAVE_INVALID") {
