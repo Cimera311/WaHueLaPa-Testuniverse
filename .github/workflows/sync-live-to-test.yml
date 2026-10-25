@@ -1,0 +1,71 @@
+name: Sync LIVE to TEST (manual)
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: live-to-test-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout test repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Checkout LIVE repository (read-only)
+        uses: actions/checkout@v4
+        with:
+          repository: Cimera311/Wahuelapa-Universe
+          ref: main
+          path: ${{ runner.temp }}/wahuelapa-live
+          persist-credentials: false
+
+      - name: Copy LIVE files, preserve TEST-only content
+        shell: bash
+        run: |
+          set -euo pipefail
+          rsync -a --delete \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='test-only/' \
+            --exclude='TESTSERVER.md' \
+            --exclude='src/cloud-config.js' \
+            "${{ runner.temp }}/wahuelapa-live/" ./
+          # Explicit test-only overrides are applied after each sync.
+          if [ -d test-only/overrides ]; then
+            cp -a test-only/overrides/. ./
+          fi
+
+      - name: Refuse accidental production connection
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f src/cloud-config.js
+          if grep -q 'qavlbxbkhahjbpgcmazd.supabase.co' src/cloud-config.js; then
+            echo "::error::TEST still points to LIVE Supabase. Configure an isolated TEST Supabase first."
+            exit 1
+          fi
+          if grep -q 'cimera311.github.io/Wahuelapa-Universe/' src/cloud-config.js; then
+            echo "::error::TEST redirectUrl still points to LIVE site."
+            exit 1
+          fi
+
+      - name: Record and publish sync commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Already in sync; no changes to commit."
+            exit 0
+          fi
+          git commit -m "chore(test): sync from LIVE main"
+          git push origin HEAD:main
