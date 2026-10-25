@@ -1,0 +1,7 @@
+{
+  "version": "2026-10-25.01",
+  "createdAt": "2026-10-25T19:20:46.844Z",
+  "sourceCommit": "3e02972e4fc6c3fade199b63fe440036e4a7a5c0",
+  "description": "O1: optionale Command-Messpunkte, getrennte Retries, PvP/PvE-Zeiten und lokale Auswertung",
+  "sha256": "596cb558cdef5a7bc6a0b0f7db197ad8a1bc9b2d42ec29e8d37c93522c644e0f"
+}

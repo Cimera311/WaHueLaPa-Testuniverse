@@ -1,5 +1,4 @@
-// @ts-nocheck — Generated dashboard bundle; edit source modules instead.
-
+// @ts-nocheck - O1 metrics 2026-10-25.01; generated from source.
 // supabase/functions/game-command/index.ts
 import { createClient } from "npm:@supabase/supabase-js@2.117.2";
 
@@ -22,7 +21,7 @@ var BUILDINGS = {
 var TECHS = {
   scout: { name: "Sensortechnik", description: "Stufe 1: Sonden. Weitere Stufen: k\xFCrzere Sondenfl\xFCge und fr\xFChere PvP-Warnungen. Je Stufe sinkt die Zeit bis zur Erkennung um weitere 10 % (abnehmender absoluter Effekt).", cost: [100, 100, 30], time: 10, lab: 1, max: 100 },
   logistics: { name: "Transporttechnik", description: "Frachter freischalten; je Stufe +15 % Laderaum.", cost: [150, 120, 40], time: 12, lab: 1, max: 5, requires: { tech: "scout", level: 1 } },
-  colonization: { name: "Kolonisierung", description: "Stufen 1\u20133: die drei Tutorial-Kolonien. Stufen 4-8: weitere Plaetze in der gemeinsamen Galaxie.", cost: [350, 250, 100], time: 16, lab: 2, max: 8, requires: { tech: "scout", level: 1 } },
+  colonization: { name: "Kolonisierung", description: "Stufen 1\u20133: die drei Tutorial-Kolonien. Stufen 4\u20138: zus\xE4tzliche Pl\xE4tze in der gemeinsamen Galaxie.", cost: [350, 250, 100], time: 16, lab: 2, max: 8, requires: { tech: "scout", level: 1 } },
   drive: { name: "Verbrennungstriebwerke", description: "F\xFCr Sonden, Kolonieschiffe, kleine Transporter, Kurier und Falke: je Stufe +5 % Antriebsleistung; separate Verbrauchsreduktion von 12 % je Stufe. Stufe 3 erm\xF6glicht Staustrahlforschung.", cost: [200, 150, 80], time: 14, lab: 2, max: 10, requires: { tech: "logistics", level: 1 } },
   ramjet: { name: "Staustrahltriebwerke", description: "Stufe 1: W\xE4chter; Stufe 2: Karawane. Je Stufe +5 % Antriebsleistung und separate Verbrauchsreduktion von 12 % je Stufe nur f\xFCr diese Schiffe. Stufe 1 bereitet Fl\xFCge in die k\xFCnftige gemeinsame Galaxie vor; Stufe 3 erm\xF6glicht Impulstriebwerke.", cost: [600, 450, 200], time: 24, lab: 3, max: 10, requires: { tech: "drive", level: 3 } },
   impulse: { name: "Impulstriebwerke", description: "Stufe 1: Donner; Stufe 2: Atlas. Je Stufe +5 % Antriebsleistung und separate Verbrauchsreduktion von 12 % je Stufe nur f\xFCr diese Schiffe. Stufe 3 erm\xF6glicht Hyperraumtriebwerke.", cost: [1800, 1400, 650], time: 40, lab: 4, max: 10, requires: { tech: "ramjet", level: 3 } },
@@ -67,7 +66,7 @@ function vector(values) {
   return Object.fromEntries(RES.map((k, i) => [k, values[i]]));
 }
 function costAt(item, level) {
-  if (item === TECHS.colonization && (level === 6 || level === 7)) return vector([level === 6 ? 1000000 : 1500000, level === 6 ? 1000000 : 1500000, level === 6 ? 1000000 : 1500000]);
+  if (item === TECHS.colonization && level >= 6 && level < 8) return vector([level === 6 ? 1e6 : 15e5, level === 6 ? 1e6 : 15e5, level === 6 ? 1e6 : 15e5]);
   return vector(item.cost.map((v) => Math.ceil(v * Math.pow(1.6, level) * Math.pow(item === TECHS.military ? 1.5 : 1, Math.max(0, level - 4)))));
 }
 var ROUTE_ECONOMY = { time: 1, fuel: 0.75 };
@@ -1675,6 +1674,86 @@ function resolveBattleHybrid(attacker, defender, seed, experimentalVersion = 4, 
   };
 }
 
+// src/server-metrics.js
+var phases = /* @__PURE__ */ new Set(["auth", "snapshot", "snapshotBytes", "simulation", "pvp", "pve", "commit", "read", "projection", "serialization", "admin"]);
+var types = /* @__PURE__ */ new Set(["sync", "new", "command", "pirate", "social", "galaxy", "attack", "set-pvp", "set-combat", "rename"]);
+var actions = /* @__PURE__ */ new Set(["build", "research", "ship", "demolish", "repair", "scrap-ship", "route", "attack", "scan"]);
+function createCommandMetrics({ rate = 0, random = Math.random, clock = () => performance.now(), emit = (line) => console.log(line), id = () => crypto.randomUUID() } = {}) {
+  rate = Number(rate);
+  if (!Number.isFinite(rate) || rate <= 0 || random() >= Math.min(1, rate)) return void 0;
+  const started = clock(), request = id(), totals = {}, counts = {}, attempts = [];
+  let current, finished = false, type = "unknown", action = "other", responseBytes = 0;
+  const round = (n) => Math.round(n * 1e3) / 1e3;
+  const stop = (name) => {
+    const begin = clock();
+    return () => {
+      const ms2 = Math.max(0, clock() - begin);
+      totals[name] = (totals[name] || 0) + ms2;
+      if (current) current.ms[name] = (current.ms[name] || 0) + ms2;
+    };
+  };
+  return {
+    label(input) {
+      type = types.has(input?.type) ? input.type : "unknown";
+      action = actions.has(input?.action?.type) ? input.action.type : "other";
+    },
+    start(name) {
+      return phases.has(name) ? stop(name) : () => {
+      };
+    },
+    count(name) {
+      if (["events", "pvpBattles", "pveBattles"].includes(name)) {
+        counts[name] = (counts[name] || 0) + 1;
+        if (current) current.counts[name] = (current.counts[name] || 0) + 1;
+      }
+    },
+    attempt() {
+      current = { attempt: attempts.length + 1, ms: {}, counts: {}, snapshotBytes: 0, committed: false };
+      attempts.push(current);
+    },
+    snapshot(value2) {
+      const end = stop("snapshotBytes");
+      try {
+        if (current) current.snapshotBytes = new TextEncoder().encode(JSON.stringify(value2)).byteLength;
+      } finally {
+        end();
+      }
+    },
+    committed(ok) {
+      if (current) current.committed = !!ok;
+    },
+    response(text2) {
+      responseBytes = new TextEncoder().encode(text2).byteLength;
+    },
+    finish(status) {
+      if (finished) return;
+      finished = true;
+      const rounded = (obj) => Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, round(v)]));
+      const record = { kind: "game_command_metrics", schema: 1, request, type, action, status, totalMs: round(clock() - started), ms: rounded(totals), counts, responseBytes, retries: Math.max(0, attempts.length - 1), attempts: attempts.map((a) => ({ ...a, ms: rounded(a.ms) })) };
+      try {
+        emit(JSON.stringify(record));
+      } catch {
+      }
+    }
+  };
+}
+function measure(metrics, name, fn) {
+  const end = metrics?.start(name);
+  try {
+    return fn();
+  } finally {
+    end?.();
+  }
+}
+async function measureAsync(metrics, name, fn) {
+  const end = metrics?.start(name);
+  try {
+    return await fn();
+  } finally {
+    end?.();
+  }
+}
+
 // src/pirates-world.js
 var pirateZero = () => vector([0, 0, 0]);
 var pirateState = (w, uid) => w.saves.find((r) => r.user_id === uid)?.state;
@@ -1792,7 +1871,7 @@ function pirateReport(row, r) {
   row.reports.unshift(r);
   row.reports = row.reports.slice(0, 30);
 }
-function arrivePirate(w, uid, m, time) {
+function arrivePirate(w, uid, m, time, metrics) {
   const row = pirateOwner(w, uid), s = pirateState(w, uid), meta = PIRATE_STATION_META.find((x) => x.id === m.station);
   if (m.status === "returning") {
     returnPirate(w, row, m, time);
@@ -1808,7 +1887,8 @@ function arrivePirate(w, uid, m, time) {
   } else if (m.kind === "attack") {
     const resolver = [4, 5, 6, 7].includes(m.ruleVersion) ? resolveBattleHybrid : resolveBattle;
     const before = { ...station.fleet };
-    const result2 = resolver({ fleet: m.fleet, tech: m.tech, hulls: m.hulls, shieldFactor: m.shieldUntil ? Math.max(0, Math.min(1, 1 - (m.shieldUntil - time) / 3e5)) : 1 }, { fleet: station.fleet, tech: station.tech, hulls: station.hulls }, m.seed || m.id, m.ruleVersion, m.combatConfig);
+    metrics?.count("pveBattles");
+    const result2 = measure(metrics, "pve", () => resolver({ fleet: m.fleet, tech: m.tech, hulls: m.hulls, shieldFactor: m.shieldUntil ? Math.max(0, Math.min(1, 1 - (m.shieldUntil - time) / 3e5)) : 1 }, { fleet: station.fleet, tech: station.tech, hulls: station.hulls }, m.seed || m.id, m.ruleVersion, m.combatConfig));
     const debris = pirateZero();
     for (const [side, after] of [[m.fleet, result2.attacker.fleet], [before, result2.defender.fleet]]) for (const [k, n] of Object.entries(side)) {
       const lost = n - (after[k] || 0);
@@ -2350,7 +2430,7 @@ function survey(w, m) {
 function shieldFactor(until, time) {
   return until ? Math.max(0, Math.min(1, 1 - (until - time) / 3e5)) : 1;
 }
-function resolveAttack(w, m, time) {
+function resolveAttack(w, m, time, metrics) {
   const a = stateOf(w, m.attacker_id), target = w.planets.find((p2) => p2.id === m.to), row = w.saves.find((x) => x.user_id === m.defender_id);
   if (!target || target.owner_id !== m.defender_id || target.reserved || !row || !target.protection_ended && time < (target.colonized_at || time) + COLONY_PROTECTION) {
     m.status = "returning";
@@ -2374,7 +2454,8 @@ function resolveAttack(w, m, time) {
   if (supporting.length || parked.length || repairs.length) defense.groups = [{ id: "host", owner: m.defender_id, commander: d.name, ...defense }, ...parked, ...repairs, ...supporting];
   const version = m.ruleVersion || 1;
   const resolver = [4, 5, 6, 7].includes(version) ? resolveBattleHybrid : resolveBattle;
-  const result2 = [4, 5, 6, 7].includes(version) ? resolver({ ...m.combat, shieldFactor: shieldFactor(m.shieldUntil, time) }, defense, m.seed || m.id, version, version >= 6 ? m.combatConfig || REALM_COMBAT_OVERRIDES.test4 : {}) : resolver({ ...m.combat, shieldFactor: shieldFactor(m.shieldUntil, time) }, defense, m.seed || m.id, version);
+  metrics?.count("pvpBattles");
+  const result2 = measure(metrics, "pvp", () => [4, 5, 6, 7].includes(version) ? resolver({ ...m.combat, shieldFactor: shieldFactor(m.shieldUntil, time) }, defense, m.seed || m.id, version, version >= 6 ? m.combatConfig || REALM_COMBAT_OVERRIDES.test4 : {}) : resolver({ ...m.combat, shieldFactor: shieldFactor(m.shieldUntil, time) }, defense, m.seed || m.id, version));
   if (pveParked.length) reconcilePirateDefense(w, m.defender_id, pveParked, result2, time);
   const repairBefore = Object.fromEntries(Object.keys(SHIPS).map((k) => [k, repairs.reduce((n, g) => n + (g.fleet[k] || 0), 0)]));
   if (repairs.length) reconcileRepairBattle(p, result2);
@@ -2488,7 +2569,7 @@ function collectWorldDebris(w, uid, s, m) {
     room -= amount;
   }
 }
-function advanceWorld(w) {
+function advanceWorld(w, metrics) {
   let guard = 0;
   while (true) {
     const events = [...socialEvents(w), ...pirateEvents(w)];
@@ -2510,12 +2591,13 @@ function advanceWorld(w) {
     const e = events[0];
     if (!e || e.time > w.now) break;
     if (++guard > 1e4) throw Error("Zu viele f\xE4llige Ereignisse.");
+    metrics?.count("events");
     for (const row of w.saves) advance(row.state, e.time, (s, m) => collectWorldDebris(w, row.user_id, s, m));
     refreshPirates(w, e.time);
-    if (e.kind === "pirate") arrivePirate(w, e.owner, e.mission, e.time);
+    if (e.kind === "pirate") arrivePirate(w, e.owner, e.mission, e.time, metrics);
     if (e.kind === "survey") survey(w, e.mission);
     if (e.kind === "galaxy") finishGalaxy(w, e.mission, e.time);
-    if (e.kind === "battle") resolveAttack(w, e.mission, e.time);
+    if (e.kind === "battle") resolveAttack(w, e.mission, e.time, metrics);
     if (e.kind === "social") arriveSocial(w, e.mission, e.time);
     if (e.kind === "return") returnAttack(w, e.mission, e.time);
     settleSocialCargo(w, e.time);
@@ -2572,8 +2654,8 @@ function launchAttack(w, uid, action, id) {
   else for (const p of colonies) p.protection_ended = true;
   w.attacks.push({ id, attacker_id: uid, defender_id: target.owner_id, from: from.id, to: target.id, fleet, hulls, ruleVersion: [3, 4, 5, 6, 7].includes(w.settings.combat_engine) ? w.settings.combat_engine : COMBAT_RULE_VERSION, combat: { fleet, tech: { ...s.tech }, hulls }, ...w.settings.combat_engine >= 6 ? { combatConfig: structuredClone(REALM_COMBAT_OVERRIDES.test4) } : {}, shieldUntil: from.shieldUntil || 0, started_at: w.now, warning_at: w.now + Math.ceil(f.ms * fraction), arrival_at: w.now + f.ms, return_at: w.now + 2 * f.ms, status: "outbound", fuel: f.fuel, slowest: f.slowest });
 }
-function processWorld(snapshot, uid, request) {
-  const w = advanceWorld(prepareWorld(snapshot)), type = request.type, action = request.action || {};
+function processWorld(snapshot, uid, request, metrics) {
+  const w = advanceWorld(prepareWorld(snapshot), metrics), type = request.type, action = request.action || {};
   if (!w.saves.some((r) => r.user_id === uid)) {
     if (type !== "new") return w;
     const name = String(request.name || "Commander").trim().slice(0, 30) || "Commander";
@@ -2653,28 +2735,36 @@ async function missionId(uid, requestId) {
   const h = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
   return h.slice(0, 8) + "-" + h.slice(8, 12) + "-" + h.slice(12, 16) + "-" + h.slice(16, 20) + "-" + h.slice(20);
 }
-async function runServerCommand(db, uid, input) {
+async function runServerCommand(db, uid, input, metrics) {
+  metrics?.label(input);
   if (!uuid.test(uid) || !input || typeof input !== "object") throw Error("Ung\xFCltige Anfrage.");
   const mutating = input.type !== "sync";
   if (mutating && !uuid.test(input.requestId)) throw Error("Eine eindeutige Auftrags-ID fehlt.");
   if (input.type === "set-combat") {
     if (![3, 4, 5, 6, 7].includes(input.engine)) throw Error("Unbekannte Kampfengine.");
-    value(await db.rpc("imperium_set_combat_engine", { p_uid: uid, p_engine: input.engine }));
-    return runServerCommand(db, uid, { type: "sync" });
+    value(await measureAsync(metrics, "admin", () => db.rpc("imperium_set_combat_engine", { p_uid: uid, p_engine: input.engine })));
+    try {
+      return await runServerCommand(db, uid, { type: "sync" }, metrics);
+    } finally {
+      metrics?.label(input);
+    }
   }
   const requestId = mutating ? input.requestId : null;
   const eventId = mutating ? await missionId(uid, requestId) : null, combatSeed = crypto.randomUUID();
   for (let retry = 0; retry < 5; retry++) {
-    const snapshot = value(await db.rpc("imperium_pvp_snapshot", { p_uid: uid, p_request_id: requestId }));
+    metrics?.attempt();
+    const snapshot = value(await measureAsync(metrics, "snapshot", () => db.rpc("imperium_pvp_snapshot", { p_uid: uid, p_request_id: requestId })));
+    metrics?.snapshot(snapshot);
     if (snapshot.receipt && JSON.stringify(snapshot.receipt) !== JSON.stringify(input)) {
       const canonical = (v) => Array.isArray(v) ? v.map(canonical) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, canonical(v[k])])) : v;
       if (JSON.stringify(canonical(snapshot.receipt)) !== JSON.stringify(canonical(input))) throw Error("Diese Auftrags-ID wurde bereits anders verwendet.");
     }
-    const w = processWorld(snapshot, uid, snapshot.receipt ? { type: "sync" } : { ...input, eventId, combatSeed });
-    const ok = value(await db.rpc("imperium_pvp_commit", { p_world: w, p_expected: snapshot.settings.epoch, p_uid: uid, p_request_id: requestId, p_payload: input }));
+    const w = measure(metrics, "simulation", () => processWorld(snapshot, uid, snapshot.receipt ? { type: "sync" } : { ...input, eventId, combatSeed }, metrics));
+    const ok = value(await measureAsync(metrics, "commit", () => db.rpc("imperium_pvp_commit", { p_world: w, p_expected: snapshot.settings.epoch, p_uid: uid, p_request_id: requestId, p_payload: input })));
+    metrics?.committed(ok);
     if (!ok) continue;
-    const row = value(await db.from("game_saves").select("state,revision").eq("user_id", uid).maybeSingle());
-    return { state: row?.state || null, revision: row?.revision || 0, pvp: projectPvP(w, uid) };
+    const row = value(await measureAsync(metrics, "read", () => db.from("game_saves").select("state,revision").eq("user_id", uid).maybeSingle()));
+    return { state: row?.state || null, revision: row?.revision || 0, pvp: measure(metrics, "projection", () => projectPvP(w, uid)) };
   }
   throw Error("Mehrere gleichzeitige Aktionen. Bitte erneut versuchen.");
 }
@@ -2683,24 +2773,34 @@ async function runServerCommand(db, uid, input) {
 var headers = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, apikey, content-type, x-client-info", "Access-Control-Allow-Methods": "POST, OPTIONS", "Content-Type": "application/json" };
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers });
-  if (req.method !== "POST") return new Response(JSON.stringify({ error: "Nur POST erlaubt." }), { status: 405, headers });
+  const metrics = createCommandMetrics({ rate: Deno.env.get("GAME_COMMAND_METRICS_RATE") || 0 });
+  let status = 500;
+  const respond = (body, code = 200) => {
+    status = code;
+    const text2 = measure(metrics, "serialization", () => JSON.stringify(body));
+    metrics?.response(text2);
+    return new Response(text2, { status: code, headers });
+  };
   try {
+    if (req.method !== "POST") return respond({ error: "Nur POST erlaubt." }, 405);
     const token = req.headers.get("Authorization")?.match(/^Bearer (.+)$/i)?.[1];
-    if (!token) return new Response(JSON.stringify({ error: "Bitte anmelden." }), { status: 401, headers });
+    if (!token) return respond({ error: "Bitte anmelden." }, 401);
     const db = createClient(Deno.env.get("SUPABASE_URL"), Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"), { auth: { persistSession: false, autoRefreshToken: false } });
-    const { data, error } = await db.auth.getUser(token);
-    if (error || !data.user) return new Response(JSON.stringify({ error: "Anmeldung abgelaufen." }), { status: 401, headers });
+    const { data, error } = await measureAsync(metrics, "auth", () => db.auth.getUser(token));
+    if (error || !data.user) return respond({ error: "Anmeldung abgelaufen." }, 401);
     const raw = await req.text();
-    if (raw.length > 32e3) return new Response(JSON.stringify({ error: "Anfrage zu gro\xDF." }), { status: 413, headers });
-    const result2 = await runServerCommand(db, data.user.id, JSON.parse(raw));
-    return new Response(JSON.stringify(result2), { headers });
+    if (raw.length > 32e3) return respond({ error: "Anfrage zu gro\xDF." }, 413);
+    const result2 = await runServerCommand(db, data.user.id, JSON.parse(raw), metrics);
+    return respond(result2);
   } catch (error) {
     if (error?.code === "WORLD_SAVE_INVALID") {
       const diagnostic = { code: error.code, phase: error.phase, rule: error.rule };
       console.error("world_save_validation_failed", JSON.stringify(diagnostic));
-      return new Response(JSON.stringify({ error: error.message, ...diagnostic }), { status: 503, headers });
+      return respond({ error: error.message, ...diagnostic }, 503);
     }
-    const status = error instanceof Error && "status" in error ? Number(error.status) : 400;
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Serverfehler." }), { status, headers });
+    const code = error instanceof Error && "status" in error ? Number(error.status) : 400;
+    return respond({ error: error instanceof Error ? error.message : "Serverfehler." }, code);
+  } finally {
+    metrics?.finish(status);
   }
 });

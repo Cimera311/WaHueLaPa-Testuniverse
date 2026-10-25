@@ -1,6 +1,7 @@
 param(
     [string]$SupabaseDir = (Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'Docker\Subabase\WahuelapaTest'),
-    [string]$PublishableKey = ''
+    [string]$PublishableKey = '',
+    [switch]$Metrics
 )
 $ErrorActionPreference = 'Stop'
 $repoDir = Split-Path $PSScriptRoot -Parent
@@ -56,6 +57,13 @@ try {
     $quotedDir = $SupabaseDir.Replace("'", "''")
     $quotedCli = $cli.Replace("'", "''")
     $command = "Set-Location -LiteralPath '$quotedDir'; & '$quotedCli' functions serve swift-handler --no-verify-jwt"
+    if ($Metrics) {
+        $metricsFile = Join-Path $PSScriptRoot '.runtime\metrics.env'
+        [IO.File]::WriteAllText($metricsFile, "GAME_COMMAND_METRICS_RATE=1" + [Environment]::NewLine, (New-Object Text.UTF8Encoding($false)))
+        $quotedMetrics = $metricsFile.Replace("'", "''")
+        $command += " --env-file '$quotedMetrics'"
+        Write-Host 'O1-Messung aktiv: ein kompakter Datensatz je Auftrag im Edge-Log.'
+    }
     $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($command))
     Start-Process powershell.exe -ArgumentList @('-NoProfile','-NoExit','-EncodedCommand',$encoded)
     Write-Host 'Edge-Fenster offen lassen; auf Serving functions warten. Website dann im Browser oeffnen.'
