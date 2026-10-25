@@ -33,7 +33,9 @@ gezeigt). Das vollstaendige Archiv wird erst beim Oeffnen der Berichtssektion
 geladen. Eifrige Archivabfragen bei Angriff/Verteidigung, nach Angriffstart und
 Syncs ausserhalb der Berichtssektion entfallen; ebenso die zusaetzlichen Abfragen
 pro aktiver Mission. Der Link zu allen Einsatzberichten oeffnet die Berichtssektion
-mit Missionsfilter. Pagination/Archivsuche und Replay bleiben dort erreichbar.
+mit Missionsfilter. Pagination/Archivsuche und Replay bleiben dort erreichbar. Auch eine geoeffnete
+Berichtssektion wird nicht bei jedem World-Sync erneut abgefragt; Aktualisieren
+erfolgt durch Navigation, Filter, Nachladen oder die Aktualisieren-Schaltflaeche.
 Der Gleichheitsvergleich verwendet in beiden Snapshotpfaden die gewollte neue
 Vierer-Vorschau; diese UI-Aenderung gegenueber dem vorherigen Bundle ist beabsichtigt.
 

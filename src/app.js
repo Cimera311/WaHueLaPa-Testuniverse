@@ -586,7 +586,7 @@ async function flushCloud(){
   if(refreshView||cloudRenderPending){cloudRenderPending=false;render();}
   refreshCloudBadge();
   if(tab==='leaderboard')void refreshRanking();
-  if(tab==='fleet'&&fleetSection==='reports')void refreshReports();
+  // Report history refreshes on user navigation/refresh, never on world sync.
   const status=document.getElementById('cloud-status');if(status)status.textContent=cloudMessage;
  }
 }

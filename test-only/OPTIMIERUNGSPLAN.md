@@ -76,7 +76,7 @@ Statuswerte: **OFFEN**, **IN ARBEIT**, **PR BEREIT**, **LOKAL ABGENOMMEN**, **LI
 | T0 | Isolierter Testbetrieb und Startwerkzeuge | – | LOKAL ABGENOMMEN | Einrichtungschat / Test-PR #2 |
 | O1 | Messpunkte und reproduzierbare Baseline | T0 | IN ARBEIT | Codex / `codex/o1-command-metrics` / [PR #6](https://github.com/Cimera311/WaHueLaPa-Testuniverse/pull/6); lokale Baseline offen |
 | O2 | Serverseitiger Wartungsmodus und Restore-Probe | T0 | OFFEN | – |
-| O3 | Snapshot/Payload und Lesezugriffe entlasten | O1 | IN ARBEIT | Codex / `codex/o3-compact-snapshot` / kompakter Snapshot |
+| O3 | Snapshot/Payload und Lesezugriffe entlasten | O1 | IN ARBEIT | Codex / `codex/o3-compact-snapshot` / [PR #11](https://github.com/Cimera311/WaHueLaPa-Testuniverse/pull/11) |
 | O4 | Spielerbezogene Commands und atomare Idempotenz | O1, O2; O3 auswerten | OFFEN | – |
 | O5 | Dauerhafte Ereignisse und Worker | O4-Verträge festgelegt | OFFEN | – |
 | O6 | Kämpfe als dauerhafte Jobs | O5 | OFFEN | – |
@@ -319,3 +319,13 @@ Korrektur ergänzen statt dessen Historie zu überschreiben.
 - Naechster Schritt: kontrollierter Legacy/Compact-Lauf bei gleichem Datenstand; aktive Flotten, wartende Ladung und Berichte manuell bestaetigen.
 
 - O3-Praezisierung durch Sebastian: nur die letzten vier Angriffsberichte in der Vorschau; alles Weitere erst in der Berichtssektion laden. Serverseitige und SQL-Limits auf vier gesetzt. Eifrige Browser-Archivabfragen bei PvP/Verteidigung/Sync/Angriffstart sowie pro aktiver Mission entfernt; Archiv-Pagination bleibt erhalten. Browser-Integrationstest prueft Nullabfragen ausserhalb des Archivs, einmaliges Laden beim Oeffnen und Nachladen weiterer Seiten.
+
+### 2026-10-25 - O3: Automatische Vorbereitung abgeschlossen
+
+- PR: https://github.com/Cimera311/WaHueLaPa-Testuniverse/pull/11; Sebastian prueft/mergt selbst. O3 bleibt bis zur lokalen Aktivierung und HTTP-Abnahme IN ARBEIT.
+- Endgueltiger Umfang: genau vier aktuelle Angriffs-/Verteidigungsberichte in schneller Vorschau/Sync, einschliesslich eigener Unterstuetzungen. Aeltere Berichte erst bei ausdruecklicher Navigation in die Berichtssektion. Kein Archivpolling nach World-Sync, auch nicht bei offenem Archiv; Filter, Nachladen und explizites Aktualisieren bleiben erhalten.
+- Quellcommit des unveraenderten Backend-Bundles: b1b330e9d7ab3f91340cd05b6e7dba1eaaa022c7. Vollstaendige Game-command 2026-10-25.02, SHA256 2365b753ded5cbf7935d521d40211b5a3e141cb0778289b7d01988b13ef9207d; TS/TXT/Dashboard bytegleich. Kein compact-v2-Writer oder anderer neuer Schreibpfad enthalten; bestehender Commit unveraendert.
+- Automatisch: node --test --test-concurrency=2 tests/*.test.js: 531/531 erfolgreich. Nach letzter Archivpolling-Aenderung zusaetzlich 21/21 Bericht-/Kontotests erfolgreich. Lokale Webserver-Tests 3/3, Website-Build, PowerShell-Parser und Test-Tools.ps1 erfolgreich. GitHub-Checks am letzten PR-Commit gesondert kontrollieren.
+- Testfixture fuer Kontotrennung und verspaetete Berichtsantworten oeffnet nun die Berichtssektion vor dem Request und stellt deren Navigationsabhaengigkeiten bereit. Nachlade-Test prueft zusaetzlich, dass ein echter Controller-Sync bei offenem Archiv keinen weiteren Berichtsabruf startet.
+- Parallel gemergten main-Stand a024855a012c7f4c2cdd014642a7d9a98bf277ec mit mobilen Routen-Buttons erhalten und in den Branch integriert. Keine fremden UI-Aenderungen zurueckgenommen.
+- Lokale Produktinstallation weiterhin nicht umgestellt. SQL-Vergleich nur transaktional zurueckgerollt; keine Live-Aenderung. Ein kontrollierter Vorher-/Nachher-HTTP-Lauf folgt nach dem Merge und Start mit -CompactSnapshot.
