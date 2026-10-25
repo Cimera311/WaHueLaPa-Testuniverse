@@ -70,12 +70,12 @@ keine SQL-Dumps, .git-Dateien, Hilfsskripte oder alte START_HERE-Bundles.
 - Bei bereits laufender Umgebung die Game-command aktualisieren:
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\test-only\Update-Test.ps1
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\test-only\Update-Test.ps1 -ReloadEdge
 ```
 
 Das Skript kopiert `supabase/dashboard/game-command.ts` komplett nach
 `<SupabaseDir>\supabase\functions\swift-handler\index.ts` und prueft SHA256.
-`functions serve` laedt Dateiaenderungen neu; bei Problemen dieses Fenster mit Strg+C
+Mit `-ReloadEdge` wird nur der lokale Test-Edge-Container neu gestartet, damit Windows-Dateiaenderungen sicher in einem frischen Worker ankommen. Ohne Schalter wird nur kopiert. Bei Problemen dieses Fenster mit Strg+C
 beenden und den bisherigen Serve-Befehl erneut starten. Browser mit Strg+F5 laden.
 Bei Aenderungen an den Hilfsskripten beide Terminalprozesse beenden und neu starten.
 

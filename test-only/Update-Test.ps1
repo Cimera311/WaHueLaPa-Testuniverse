@@ -1,5 +1,6 @@
 param(
-    [string]$SupabaseDir = (Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'Docker\Subabase\WahuelapaTest')
+    [string]$SupabaseDir = (Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'Docker\Subabase\WahuelapaTest'),
+    [switch]$ReloadEdge
 )
 $ErrorActionPreference = 'Stop'
 $repoDir = Split-Path $PSScriptRoot -Parent
@@ -24,7 +25,8 @@ if ((Test-Path -LiteralPath $target) -and (Get-FileHash -LiteralPath $target -Al
     }
     Copy-Item -LiteralPath $source -Destination $target
     if ((Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash -ne $sourceHash) { throw 'Kopie stimmt nicht mit Quelldatei ueberein.' }
-    Write-Host 'Lokale Game-command aktualisiert. Laufendes functions serve laedt Aenderungen neu.'
+    Write-Host 'Lokale Game-command aktualisiert. Bei laufendem Server -ReloadEdge fuer einen frischen Worker verwenden.'
 }
 Write-Host "SHA256: $sourceHash"
+if ($ReloadEdge) { & (Join-Path $PSScriptRoot 'Restart-TestEdge.ps1') }
 Write-Host 'Datenbank und Cloud wurden nicht veraendert. Keine SQL-Migrationen ausgefuehrt.'

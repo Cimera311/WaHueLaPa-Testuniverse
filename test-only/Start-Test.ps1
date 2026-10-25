@@ -39,6 +39,8 @@ try {
     if ($status.API_URL -notin @('http://127.0.0.1:54321','http://localhost:54321')) {
         throw 'Unerwartete API-Adresse. Erwartet: lokale Supabase auf Port 54321.'
     }
+    # Windows bind mounts may not invalidate already running Deno workers.
+    & (Join-Path $PSScriptRoot 'Restart-TestEdge.ps1') -IfRunning
     if (!$PublishableKey) {
         # Accept public publishable keys only, never ANON_KEY/service-role fallbacks.
         foreach ($property in $status.PSObject.Properties) {

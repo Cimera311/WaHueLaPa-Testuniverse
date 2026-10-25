@@ -342,3 +342,14 @@ Korrektur ergänzen statt dessen Historie zu überschreiben.
 - Rollback: Faktor 3 wiederherstellen und Browser/Bundle gemeinsam bauen/aktualisieren; bestehende Fluege nicht nachtraeglich umschreiben.
 - PR: https://github.com/Cimera311/WaHueLaPa-Testuniverse/pull/13. Automatisch: 43/43 gezielte Flug-/PvP-/Cargo-/Compact-Tests erfolgreich, Website-Build und Test-Tools.ps1 (Kopie/Sicherung/Idempotenz/Zielschutz) erfolgreich. Vollsuite und aktuelle GitHub-Checks siehe PR. Kampf gegen Aster 2 noch nicht ausgefuehrt; der Angriff erfolgt durch Sebastian.
 - News-Entwurf, nur Test: Fuer den PvP-Test sind neue Galaxiefluege beschleunigt. Laufende Fluege behalten ihre bisherigen Zeiten. Keine Live-Aenderung.
+
+### 2026-10-25 - Windows-Test: stale Edge-Worker nach Dateikopie
+
+- Befund: Browser, Dashboard-Bundle, lokale index.ts und im Container sichtbare Datei hatten bereits Faktor 0.1 und den erwarteten SHA256 e6db8a24f69fac0e16e035212a8038d67175ea610e8f935beedeac61091a6ba1. Der danach gestartete Testangriff wurde trotzdem mit 729,627 Sekunden Hinflug gespeichert; mit Faktor 0.1 waeren es rund 24,321 Sekunden. Der Faktorunterschied entspricht genau 30.
+- Bewertung: Ein weiterverwendeter alter Edge-Worker ist die naheliegende Ursache; ein frischer erfolgreicher Angriff wurde noch nicht verifiziert.
+- Sofortmassnahme: ausschliesslich supabase_edge_runtime_WahuelapaTest neu gestartet; Docker bestaetigte danach Running=true. Keine Datenbank-/Angriffstimer geaendert. Danach Verbindung zum lokalen Rechner verloren, daher keine weitere lokale Laufzeitpruefung behauptet.
+- Fix: Start-Test startet eine bereits laufende lokale Test-Edge-Runtime vor functions serve neu. Update-Test -ReloadEdge erzwingt denselben frischen Worker auch bei unveraenderter Dateipruefsumme. Ohne Schalter bleibt Update-Test kopierend. Fester Containername; kein DB-Neustart.
+- Lokal vor Verbindungsabbruch geprueft: Syntax aller vier PowerShell-Dateien; Kopie/Sicherung/Idempotenz/Zielschutz sowie vollstaendig gemockte Docker-Tests fuer expliziten Reload, gestoppten Container und Restartfehler erfolgreich.
+- Neue SQL / Game-command: keine. Bestehende 2026-10-25.03 bleibt unveraendert.
+- Aktivierung nach Merge: lokal aktualisieren; Update-Test.ps1 -ReloadEdge, Browser Strg+F5. Alternativ normaler Neustart mit Start-Test.ps1 -Metrics -CompactSnapshot. Gespeicherte Missionen behalten ihre Zeitpunkte.
+- Grenzen: neuer Angriff mit rund 25 Sekunden noch zu bestaetigen; laufenden Aster-2-Angriff nicht nachtraeglich geaendert. Keine Live-Aenderung.
