@@ -1,6 +1,6 @@
 {
   "format": 1,
-  "latest": "2026-10-25.01",
+  "latest": "2026-10-25.02",
   "releases": [
     {
       "version": "2026-10-09.01",
@@ -246,6 +246,13 @@
       "sourceCommit": "3e02972e4fc6c3fade199b63fe440036e4a7a5c0",
       "description": "O1: optionale Command-Messpunkte, getrennte Retries, PvP/PvE-Zeiten und lokale Auswertung",
       "sha256": "596cb558cdef5a7bc6a0b0f7db197ad8a1bc9b2d42ec29e8d37c93522c644e0f"
+    },
+    {
+      "version": "2026-10-25.02",
+      "createdAt": "2026-10-25T21:03:25.309Z",
+      "sourceCommit": "b1b330e9d7ab3f91340cd05b6e7dba1eaaa022c7",
+      "description": "O3: optionaler kompakter Snapshot, vier aktuelle Angriffsberichte und Archiv erst bei Bedarf",
+      "sha256": "2365b753ded5cbf7935d521d40211b5a3e141cb0778289b7d01988b13ef9207d"
     }
   ]
 }
