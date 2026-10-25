@@ -11,3 +11,9 @@ Dieser Ordner bleibt bei **Sync LIVE to TEST (manual)** erhalten.
 - `.runtime/`: ignorierte lokale Laufzeitdaten; keine privaten Schluessel speichern.
 
 Vollstaendige Anleitung: [TESTSERVER.md](../TESTSERVER.md).
+
+## Serveroptimierung und Agentenübergabe
+
+[OPTIMIERUNGSPLAN.md](OPTIMIERUNGSPLAN.md) enthält die nächsten Arbeitspakete,
+Abnahmekriterien und das gemeinsame Fortschrittsprotokoll. Vor einer Optimierung
+lesen; Änderungen, Tests und offene Punkte im selben PR dort dokumentieren.
