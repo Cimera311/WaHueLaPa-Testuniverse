@@ -23,7 +23,7 @@ jobs:
         with:
           repository: Cimera311/Wahuelapa-Universe
           ref: main
-          path: ${{ runner.temp }}/wahuelapa-live
+          path: live-source
           persist-credentials: false
 
       - name: Copy LIVE files, preserve TEST-only content
@@ -33,10 +33,12 @@ jobs:
           rsync -a --delete \
             --exclude='.git/' \
             --exclude='.github/' \
+            --exclude='live-source/' \
             --exclude='test-only/' \
             --exclude='TESTSERVER.md' \
             --exclude='src/cloud-config.js' \
-            "${{ runner.temp }}/wahuelapa-live/" ./
+            "live-source/" ./
+          rm -rf live-source
           # Explicit test-only overrides are applied after each sync.
           if [ -d test-only/overrides ]; then
             cp -a test-only/overrides/. ./
