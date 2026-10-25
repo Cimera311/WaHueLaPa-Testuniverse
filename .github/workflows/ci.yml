@@ -16,4 +16,23 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      - run: node --test test-only/*.test.mjs
       - run: npm run build
+
+  windows-local-tools:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test test-only/*.test.mjs
+      - name: Check PowerShell syntax and local copy behavior
+        shell: powershell
+        run: |
+          Get-ChildItem test-only/*.ps1 | ForEach-Object {
+            $parseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$null, [ref]$parseErrors) | Out-Null
+            if ($parseErrors.Count) { throw ($parseErrors | Out-String) }
+          }
+          & ./test-only/Test-Tools.ps1

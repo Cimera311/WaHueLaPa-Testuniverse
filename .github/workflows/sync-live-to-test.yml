@@ -13,10 +13,11 @@ concurrency:
 
 jobs:
   sync:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${'${{ steps.deployment.outputs.page_url }}'}
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout test repository
         uses: actions/checkout@v4
@@ -63,6 +64,19 @@ jobs:
             exit 1
           fi
 
+      - name: Install dependencies
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Test and build
+        run: |
+          npm ci
+          npm test
+          node --test test-only/*.test.mjs
+          npm run build
+
       - name: Record and publish sync commit
         shell: bash
         run: |
@@ -77,18 +91,6 @@ jobs:
           git commit -m "chore(test): sync from LIVE main"
           git push origin HEAD:main
 
-      - name: Install dependencies
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-
-      - name: Test and build
-        run: |
-          npm ci
-          npm test
-          npm run build
-
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
@@ -100,3 +102,4 @@ jobs:
       - name: Deploy TEST site
         id: deployment
         uses: actions/deploy-pages@v4
+
