@@ -340,5 +340,5 @@ Korrektur ergänzen statt dessen Historie zu überschreiben.
 - Aktivierung: Test-PR mergen, lokal main aktualisieren, Update-Test.ps1 ausfuehren, Browser Strg+F5. Falls die Function nicht automatisch neu laedt, vorhandene Testprozesse wie bisher mit -Metrics -CompactSnapshot neu starten. Keine SQL erforderlich.
 - TEST ONLY: nicht in einen Live-Optimierungspatch uebernehmen. Ein LIVE->TEST-Sync ersetzt normale Spielquellen und kann den Faktor zuruecksetzen; kein unkoordinierter Sync waehrend des Kampftests.
 - Rollback: Faktor 3 wiederherstellen und Browser/Bundle gemeinsam bauen/aktualisieren; bestehende Fluege nicht nachtraeglich umschreiben.
-- Automatische Pruefung und PR-Link werden vor Uebergabe ergaenzt. Kampf gegen Aster 2 noch nicht ausgefuehrt; der Angriff erfolgt durch Sebastian.
+- PR: https://github.com/Cimera311/WaHueLaPa-Testuniverse/pull/13. Automatisch: 43/43 gezielte Flug-/PvP-/Cargo-/Compact-Tests erfolgreich, Website-Build und Test-Tools.ps1 (Kopie/Sicherung/Idempotenz/Zielschutz) erfolgreich. Vollsuite und aktuelle GitHub-Checks siehe PR. Kampf gegen Aster 2 noch nicht ausgefuehrt; der Angriff erfolgt durch Sebastian.
 - News-Entwurf, nur Test: Fuer den PvP-Test sind neue Galaxiefluege beschleunigt. Laufende Fluege behalten ihre bisherigen Zeiten. Keine Live-Aenderung.
