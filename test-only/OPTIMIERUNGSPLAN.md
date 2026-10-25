@@ -74,7 +74,7 @@ Statuswerte: **OFFEN**, **IN ARBEIT**, **PR BEREIT**, **LOKAL ABGENOMMEN**, **LI
 | ID | Arbeitspaket | Abhängigkeit | Status | Verantwortlich / Branch / PR |
 |---|---|---|---|---|
 | T0 | Isolierter Testbetrieb und Startwerkzeuge | – | LOKAL ABGENOMMEN | Einrichtungschat / Test-PR #2 |
-| O1 | Messpunkte und reproduzierbare Baseline | T0 | OFFEN | Noch abzustimmen |
+| O1 | Messpunkte und reproduzierbare Baseline | T0 | IN ARBEIT | Codex / `codex/o1-command-metrics` / Messpunkte vorbereitet; lokale Baseline offen |
 | O2 | Serverseitiger Wartungsmodus und Restore-Probe | T0 | OFFEN | – |
 | O3 | Snapshot/Payload und Lesezugriffe entlasten | O1 | OFFEN | – |
 | O4 | Spielerbezogene Commands und atomare Idempotenz | O1, O2; O3 auswerten | OFFEN | – |
@@ -251,3 +251,20 @@ Korrektur ergänzen statt dessen Historie zu überschreiben.
 > offenen Punkten und nächstem Schritt. Unterscheide vorbereitet, automatisch
 > geprüft, lokal abgenommen und live übernommen. Keine Live-Datenänderung oder
 > Veröffentlichung allein aufgrund dieses Übergabeauftrags.
+
+### 2026-10-25 - O1: Messpunkte und lokale Auswertung vorbereitet
+
+- Verantwortlich: Codex, Chat zur ersten Optimierung; Branch codex/o1-command-metrics.
+- Status: OFFEN -> IN ARBEIT. O1-Abnahme bleibt bis zu echter lokaler Baseline und Spieltest offen.
+- Basiscommit: 1227e162e51c04f4d493ad8b9075c3a732782174. Offene PRs bei Start: keine; vorhandene Branches ohne O1-Ueberlappung.
+- Umfang: optionale Messung fuer Auth, Snapshot, Simulation inkl. Validierung, PvP/PvE-Resolver, Commit, Save-Read, Projektion und Serialisierung. Ein Datensatz pro gesampeltem HTTP-Auftrag, einzelne Konfliktversuche mit Zeiten/Bytes/Ereignissen.
+- Dateien: src/server-metrics.js, server-service.js, server-world.js, pirates-world.js; Function-Entrypoint und drei Dashboard-Bundles; tests/server-metrics.test.js; Start-Test.ps1, Export-Metrics.ps1, summarize-metrics.mjs und O1-MESSUNG.md.
+- Bundle: O1 2026-10-25.01; vollstaendig neu aus den Modulen gebaut mit esbuild 0.25.12. SQL: keine.
+- Logging: standardmaessig aus, lokale Aktivierung mit -Metrics; feste Labels und generierte Korrelations-ID. Keine Spieler-IDs, Tokens, Saves oder Fehlermeldungen in Metriken.
+- Automatisch: gezielte 12 Tests fuer Messung/Save-Diagnose bestanden; PvP/PvE 37 bestehende Tests bestanden; Website-Build und PowerShell-Syntax bestanden. Vollsuite/Releasearchiv und CI folgen vor PR-Abschluss.
+- Lokaler Spieltest / echte Baseline / Last / Konkurrenz zweier echter Spieler: nicht getestet. DB und laufende Testinstallation nicht veraendert. Testfixture mit erzwungenen Konflikten ist kein Mehrspieler-Lastnachweis.
+- Aktivierung: Test-PR pruefen/mergen, lokal aktualisieren, beide Testprozesse beenden; Start-Test.ps1 -Metrics; anmelden/laden/bauen/neuladen; Szenarien und Logexport nach O1-MESSUNG.md.
+- Messkosten: Snapshot-Bytes benoetigen zusaetzliche Serialisierung nur bei ausgewaehlten Requests; deren Zeit wird separat erfasst. Simulationszeit enthaelt Kampfzeit; nicht addieren. Ereigniscounter umfasst die globale World-Schleife, nicht jeden internen Routenschritt.
+- Backup/Rollback: keine DB-Migration. Update-Test sichert vorherige lokale Function; Messung durch normalen Neustart ausschalten oder vorheriges Bundle zurueckkopieren.
+- Live-Uebernahme: nicht begonnen. News nur als Entwurf in O1-MESSUNG.md.
+- Naechster konkreter Schritt: lokale Abnahme und Baseline fuer Sync/Bauen/Routen/PvE/PvP/zwei Spieler; danach O3 anhand gemessener Bytes und Laufzeiten auswaehlen.
