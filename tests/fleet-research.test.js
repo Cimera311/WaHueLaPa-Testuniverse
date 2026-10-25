@@ -22,7 +22,7 @@ test('Military upper levels grow 2.4x per level, preserve early cost, and do not
 });
 test('Each engine affects only its ships and level-five timings retain their relative speed under the realm multiplier',()=>{
  const s=newGame();s.galaxy={x:0,y:0};const from=s.planets[0],to={system:'helion',slot:1,x:500,y:400},distance=sharedDistance(from,to,s.galaxy);
- for(const ship of ['karawane','atlas','titan']){const key=SHIPS[ship].engine;s.tech[key]=5;const f=sharedFlight(s,from,to,1,ship);assert.equal(f.ms,Math.max(60000,Math.ceil((120+distance*45)*1000/(SHIPS[ship].speed*1.6)))*REALM_CONFIG.galaxyFlightTimeFactor);const other=key==='ramjet'?'impulse':'ramjet';s.tech[other]=10;assert.deepEqual(sharedFlight(s,from,to,1,ship),f);s.tech[key]=10;assert.ok(sharedFlight(s,from,to,1,ship).ms<f.ms);s.tech[key]=0;}
+ for(const ship of ['karawane','atlas','titan']){const key=SHIPS[ship].engine;s.tech[key]=5;const f=sharedFlight(s,from,to,1,ship);assert.equal(f.ms,Math.ceil(Math.max(60000,Math.ceil((120+distance*45)*1000/(SHIPS[ship].speed*1.6)))*REALM_CONFIG.galaxyFlightTimeFactor));const other=key==='ramjet'?'impulse':'ramjet';s.tech[other]=10;assert.deepEqual(sharedFlight(s,from,to,1,ship),f);s.tech[key]=10;assert.ok(sharedFlight(s,from,to,1,ship).ms<f.ms);s.tech[key]=0;}
 });
 test('Paused routes at an attacked colony fight, retain ownership and cannot hide ships',()=>{
  let w=fixture();const b=w.saves[1].state,p=b.planets[1];p.ships.karawane=2;
