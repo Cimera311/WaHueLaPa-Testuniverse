@@ -1,0 +1,60 @@
+name: Package Combat v7 Game Command
+on:
+  pull_request:
+    paths:
+      - 'src/combat-hybrid.js'
+      - 'src/combat.js'
+      - 'src/repair.js'
+      - 'src/server-world.js'
+      - 'src/server-service.js'
+      - 'src/combat-ui.js'
+      - 'src/combat-summary.js'
+      - 'supabase/combat-hybrid-v4.sql'
+      - 'supabase/combat-hybrid-v5.sql'
+      - 'supabase/combat-hybrid-v6.sql'
+      - 'supabase/combat-engine-control-v4.sql'
+      - 'supabase/combat-engine-control-v5.sql'
+      - 'supabase/combat-engine-control-v6.sql'
+      - 'tests/combat-hybrid*.test.js'
+      - 'tests/combat-v6.test.js'
+      - 'tests/combat-v7*.test.js'
+      - 'supabase/combat-v7.sql'
+      - '.github/workflows/package-combat-v4.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm ci
+      - name: Test game and combat integrations
+        run: npm test
+      - name: Build website
+        run: npm run build
+      - name: Bundle deployable Supabase Game Command
+        run: |
+          npx --yes esbuild@0.25.12 supabase/functions/game-command/index.ts --bundle --format=esm --platform=neutral --target=es2022 --external:npm:* --outfile=game-command-v7.ts
+          node --input-type=module <<'NODE'
+          import {readFileSync,writeFileSync} from 'node:fs';
+          const path='game-command-v7.ts';
+          let source=readFileSync(path,'utf8');
+          for(const fragment of ['fireLocked','imperium_set_combat_engine','initialGroups','finalGroups']){
+            if(!source.includes(fragment))throw Error('Game Command bundle missing: '+fragment);
+          }
+          writeFileSync(path,'// @ts-nocheck — Combat v7, generated from source. Deploy after SQL migrations.\n'+source);
+          NODE
+      - name: Upload new game command and SQL migrations
+        uses: actions/upload-artifact@v4
+        with:
+          name: combat-v7-deployment-${{ github.run_id }}
+          path: |
+            game-command-v7.ts
+            supabase/combat-v7.sql
+          if-no-files-found: error

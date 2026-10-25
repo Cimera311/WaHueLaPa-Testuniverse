@@ -1,0 +1,244 @@
+{
+  "format": 1,
+  "latest": "2026-10-22.01",
+  "releases": [
+    {
+      "version": "2026-10-09.01",
+      "createdAt": "2026-10-09T21:22:36+02:00",
+      "sourceCommit": "451f85c9294c1cdd18f2ab300c515433cb895bfe",
+      "description": "Erstes vollständiges Bundle für den Supabase-Dashboard-Editor",
+      "sha256": "c21ddff989d94249e71de4ef13523dd6290089c889c6110dfd110da2b3af1f26"
+    },
+    {
+      "version": "2026-10-09.02",
+      "createdAt": "2026-10-09T22:07:35+02:00",
+      "sourceCommit": "b6720391cc9dae7854a08e929c694e3f4037e113",
+      "description": "Heimatsystem-Angriffe, Galaxie-Außenposten und Kolonieschutz",
+      "sha256": "7f14bd353c3c6334866a68d24ad2ebd876821c011908687663a4645581e55bbe"
+    },
+    {
+      "version": "2026-10-09.03",
+      "createdAt": "2026-10-09T22:08:31+02:00",
+      "sourceCommit": "6f67630341122844c885ce0061c6272d25fb914c",
+      "description": "Werftaufträge abbrechen und Baukosten erstatten",
+      "sha256": "349b49a4b4ffa3b3ef14366a3eddb279643fb1b2042e6530bb0432ef6a843a0d"
+    },
+    {
+      "version": "2026-10-09.04",
+      "createdAt": "2026-10-09T22:11:21+02:00",
+      "sourceCommit": "79b74727719be4dff9de261a0389837ecdbab1a3",
+      "description": "Heimatsystem-Angriffe und Schutzregeln zusammenführen",
+      "sha256": "d983d4d7bc5782fde9b4f8295c9734598e48cfc31194677e7d1f4bdd6cc6f6e6"
+    },
+    {
+      "version": "2026-10-10.01",
+      "createdAt": "2026-10-10T09:44:21+02:00",
+      "sourceCommit": "daffad4239321cab43924a750c569931616b6d3a",
+      "description": "Erforschte Falken zwischen Sonnensystemen stationieren",
+      "sha256": "f5922a66afd6f7f702472343feb0d3ceedda35862ba3a787c491d6088c7cb411"
+    },
+    {
+      "version": "2026-10-10.02",
+      "createdAt": "2026-10-10T11:56:19+02:00",
+      "sourceCommit": "ad95e3eb3a56d217a2db1083f62b542267d9bbc5",
+      "description": "Geschützte Zielauswahl und vollständige Kampfprotokolle",
+      "sha256": "52bda2b0c2d6e6f535981548a9837ea269e46341a4f77287ce0bfe94a9c7d762"
+    },
+    {
+      "version": "2026-10-10.03",
+      "createdAt": "2026-10-10T20:01:43+02:00",
+      "sourceCommit": "b836881c25d60d930b14d6dc062c33328eaff0d2",
+      "description": "Feste Schiffsmengenlimits entfernen",
+      "sha256": "87f1c92082d29bc78c2fce3708246ec056d2ec0906ee2967e0c0cd7f32746db8"
+    },
+    {
+      "version": "2026-10-10.04",
+      "createdAt": "2026-10-10T23:35:45+02:00",
+      "sourceCommit": "f3bd15f09cdeff9ff3fffef9cd97ebea615ee104",
+      "description": "Partnerschaften, direkter Tausch, Unterstützung, gemeinsame Flugzeiten und Werft-Energie",
+      "sha256": "fc4e55db9b273e219e333137e76ad529d9885cde41b197f7663ca61a35c2dad8"
+    },
+    {
+      "version": "2026-10-11.01",
+      "createdAt": "2026-10-11T14:12:28+02:00",
+      "sourceCommit": "685fa1043f6da6ae6260718b5e833073d092e938",
+      "description": "Gemischte Flotten, Routenpausen, Forschungsstufen, Antriebe und gleichzeitige Angriffe",
+      "sha256": "cc15c5fb315f9105775f69752f411de603995c6d59e7bdf34d61c076aec3fe67"
+    },
+    {
+      "version": "2026-10-11.02",
+      "createdAt": "2026-10-11T17:00:49.252Z",
+      "sourceCommit": "66b8a7b273ab031f5d2a3d13b2ae0461269b3341",
+      "description": "Restladung bleibt im Frachter; automatische Entladung, gebundene Flotten und Kampfteilnahme statt Lieferdepot.",
+      "sha256": "ed3c1c8e4c3a4e7f16ff77f088b9b283e633f89b611be39a9b29f167d2cf3f2a"
+    },
+    {
+      "version": "2026-10-11.03",
+      "createdAt": "2026-10-11T17:58:08.011Z",
+      "sourceCommit": "09336f2a3d3feff189d1cc77e6d5d40a429ee963",
+      "description": "Partnerflotten von Heimat- und Tutorialplaneten; konsistente Rückkehr und kompakte Partnerkarten.",
+      "sha256": "c823f412ae00ac89cbe43602ca0b0dcc19ca21e8bda0e321798d6a919f535d3b"
+    },
+    {
+      "version": "2026-10-11.04",
+      "createdAt": "2026-10-11T18:33:23.998Z",
+      "sourceCommit": "ca85056b5931746f307f59facf2ab0346da6ff4b",
+      "description": "Planetare Werft-Warteschlangen mit bezahlten Folgeaufträgen, automatischem Weiterbau, Einzelabbruch und kompakter Bauübersicht.",
+      "sha256": "f6f34bde53d306f22c26f6db6bb008c048658c41416b8b22df6ffe8dfa22bbda"
+    },
+    {
+      "version": "2026-10-11.05",
+      "createdAt": "2026-10-11T18:46:06.008Z",
+      "sourceCommit": "30591446eab6aaa1ccbedd180397927aa0519d01",
+      "description": "Werftplätze nach Ausbaustufe: ein Auftrag je Stufe, maximal 20; bereits bezahlte Altaufträge bleiben erhalten.",
+      "sha256": "2045b624b21345b7c84d37267e32836f2eda2578228601998d6df52e635028d8"
+    },
+    {
+      "version": "2026-10-11.06",
+      "createdAt": "2026-10-11T21:35:00+02:00",
+      "sourceCommit": "a7b81d7153b1479ee58b6976b51fdc2ed4a84d83",
+      "description": "Sensortechnik: 10 Prozent fruehere Angriffserkennung je Stufe; Forschung bis Stufe 100",
+      "sha256": "cae9f87ccd1cdbeb94731ed83fa44258e0fb92712c4b0d5638dd3e6b99864444"
+    },
+    {
+      "version": "2026-10-12.01",
+      "createdAt": "2026-10-12T07:24:07.609Z",
+      "sourceCommit": "5b7a7a5d36af4745401a4335213bc1d09e15669e",
+      "description": "Jeder erfolgreiche Angriff plündert erneut 25 Prozent der aktuellen ungeschützten Rohstoffe; kein 24-Stunden-Beutebudget.",
+      "sha256": "b4ce4854238aa765d3e30cada7c04639fb01a89328f649217444ccd211846368"
+    },
+    {
+      "version": "2026-10-12.02",
+      "createdAt": "2026-10-12T08:19:24.711Z",
+      "sourceCommit": "23b3add3facab9f79214dec2eea645f0c548a77e",
+      "description": "Realm-Konfiguration: Galaxiefluege x3 fuer neue Flugabschnitte; Tutorial, Treibstoff und bereits gestartete Fluege bleiben unveraendert.",
+      "sha256": "f4b4f795378daaef742366b9ac3ab86422020635ff9acaaec41a1b3dfc6fec2f"
+    },
+    {
+      "version": "2026-10-13.01",
+      "createdAt": "2026-10-13T17:23:10.280Z",
+      "sourceCommit": "49e6c20fbe1f3a93c1eecbffecd8a79cca369cdb",
+      "description": "Orbitalwerft: permanenter Strombedarf, Erweiterung der Werftstufen; alte Orbitalwaffen gesperrt",
+      "sha256": "4e0cd52b0dbbb9dac3dfd5f8149cb5d6b20ee2578c3893422ed1b86f4e1bb0d8"
+    },
+    {
+      "version": "2026-10-13.02",
+      "createdAt": "2026-10-13T18:05:58.860Z",
+      "sourceCommit": "73324322a217368868c53eb8624aa1127154a3cd",
+      "description": "Planetenspezifische Energie-Exponenten fuer Solar- und Gezeitenkraftwerke, Treibstoffkraftwerk vorbereitet; Orbitalwerft bleibt erhalten.",
+      "sha256": "ee8e417918d2eb78cd63772e3210f3ccdd18f65f5c5b00c91a172edd2c29c9fb"
+    },
+    {
+      "version": "2026-10-13.03",
+      "createdAt": "2026-10-13T18:36:59.644Z",
+      "sourceCommit": "427f3f729d780390fea0265869b40da9310dcaad",
+      "description": "Vier bewaffnete Orbitalplattformen; eigene stromabhaengige Orbitalwerft-Warteschlange; Kampfregel v2 unveraendert",
+      "sha256": "a31acf8b38d7613ca99e00f40f551ae8952b6efc867c35173563a327da038fd8"
+    },
+    {
+      "version": "2026-10-14.01",
+      "createdAt": "2026-10-14T05:23:40.908Z",
+      "sourceCommit": "87aa9a853377a78270dd4a918d19bf6ea2a2eb6d",
+      "description": "Trümmerbergung: Frachter von anderem eigenen Planeten, serverseitige Sammlung bei Ankunft und Rückkehr mit Restladung",
+      "sha256": "ca2d75d6e27634c465effa00b0f17edd183bfd5e0fd5e3cbcee6fbf734adf821"
+    },
+    {
+      "version": "2026-10-14.02",
+      "createdAt": "2026-10-14T07:16:20.725Z",
+      "sourceCommit": "2339934d4e38c4dca94e49dba5125f0902d1b8c3",
+      "description": "Kampfregeln v3: Orbitaler Erstschlag in Runde 0, alte v1-v2 Protokolle kompatibel",
+      "sha256": "e7b32426c129830192f4ca3e488ae59374df305a1cc885a501ded6eab3dd6c68"
+    },
+    {
+      "version": "2026-10-14.03",
+      "createdAt": "2026-10-14T11:49:18.019Z",
+      "sourceCommit": "39b84a2406bec8d47c5509f8faec969c3117d727",
+      "description": "Reparaturdock: Hüllenzustand je Standort, zeitbasierte Reparaturen und angreifbare Dockflotten",
+      "sha256": "e42bde0f39cea4811ec9f6015b5068ea307c5b8a9bccbc834263a98593acbb05"
+    },
+    {
+      "version": "2026-10-14.04",
+      "createdAt": "2026-10-14T16:59:13.447Z",
+      "sourceCommit": "e73612a484cd47782a2696dd663f3f6ad4d8a5cd",
+      "description": "Gebaeuderueckbau mit Bestaetigung, 20 Prozent Material, 25 Prozent Zeit und historische Bauwerte",
+      "sha256": "f6f425cf688c09e59976c41659ada5d8fe2cb570e11be7e38b66993d04669cd9"
+    },
+    {
+      "version": "2026-10-15.01",
+      "createdAt": "2026-10-15T07:39:04.186Z",
+      "sourceCommit": "750763039418b1f65df77f906b3c6c1431290cda",
+      "description": "Orbitalwerft: Ausbaukosten identisch zur Schiffswerft, Faktor 1.6 und kein Treibstoff",
+      "sha256": "bd68d3f299041f25198bf2d8f0e67b1e5f7ae2fb80e58a1c98b07092d413515a"
+    },
+    {
+      "version": "2026-10-15.02",
+      "createdAt": "2026-10-15T08:25:22.836Z",
+      "sourceCommit": "d49874106c5b1468753b8e1ce66ddef173bb51e9",
+      "description": "Orbitalgeschütze reparierbar: 70 Prozent Material, volle Neubauzeit, 30 Prozent Trümmer",
+      "sha256": "bffa7a0ba92694e79e1f8a0a300b8bdc322495c176f504cb783a8cfdb1874b87"
+    },
+    {
+      "version": "2026-10-17.01",
+      "createdAt": "2026-10-17T15:53:48.919Z",
+      "sourceCommit": "792bae5bd09ac5a88a52e579a66ec6c3cd22d34a",
+      "description": "Admin-PvE: persoenliche Piratenstationen, Spionagesonden, Kampf, Cooldown, Realm-Faktoren, Abholung und Bergung",
+      "sha256": "7fdcb9e6102ca10cafc49c294310120cefadf2b807379d4b64cde50477847184"
+    },
+    {
+      "version": "2026-10-17.02",
+      "createdAt": "2026-10-17T16:37:18.917Z",
+      "sourceCommit": "fe463ab75772fd016937b3d4aebdb5a4a867d209",
+      "description": "Piraten-PvE für alle Spieler, private Gegnerdaten und Admin-Realm-Einstellungen",
+      "sha256": "0272b2934577c0cd9355348df909137b5469531ecaf21a62e160d7fccf0c5656"
+    },
+    {
+      "version": "2026-10-18.01",
+      "createdAt": "2026-10-18T17:23:46.529Z",
+      "sourceCommit": "821b2971fb654e8c2b3d82bb6ee013e08b69c52f",
+      "description": "Handelsrouten: kompakte letzte Aktivitaet, echte Lade- und Lieferzaehler, bezahlter Rundentreibstoff; keine erfolgreichen Routine-Einzelberichte",
+      "sha256": "f892dac78a6525d4e5acfc57614147f6512dc74df4a1237cee9e7ab21097cb36"
+    },
+    {
+      "version": "2026-10-18.02",
+      "createdAt": "2026-10-18T18:39:33.771Z",
+      "sourceCommit": "e9a20288fc3669bd2990762c6312831914e7954a",
+      "description": "Cloud-Ladediagnose: feste Validierungsregeln, Eingabe-/Ausgabephase und datensparsame Serverlogs",
+      "sha256": "1317ed6bf00366467e7123a69db903d6e60a1b1301992432724dea55b89134c7"
+    },
+    {
+      "version": "2026-10-18.03",
+      "createdAt": "2026-10-18T18:51:15.802Z",
+      "sourceCommit": "4f0aba1fc5ba05fc2aba0dde5d382eb404180b0f",
+      "description": "Fix processed/SV057: Position nach Routenänderung bei Rückkehr vor Pause oder Restentladung aktualisieren",
+      "sha256": "4aec4d2d6178ad8a0d9da2fa990a755fc9b4666cb48abb8c6d9a13fc8eda34bc"
+    },
+    {
+      "version": "2026-10-19.01",
+      "createdAt": "2026-10-19T12:07:41.081Z",
+      "sourceCommit": "fb062c2e1653a42b8803d952064d6575f435f66d",
+      "description": "Kampfengine v7: Zielbindung bis zur Zerstoerung, zieltreue Rapid-Fire-Zusatzsalven, keine RF-Zielprioritaet; v3-v6 und laufende Angriffe bleiben erhalten",
+      "sha256": "d6dbda411aa3df9f4961b2859c10de9670728937596ffa5c49b3ccc9503bd6cc"
+    },
+    {
+      "version": "2026-10-20.01",
+      "createdAt": "2026-10-20T09:26:00.820Z",
+      "sourceCommit": "fcd3c36f6a3ebd34a25585b2368f71eac403c211",
+      "description": "Schiffe verschrotten: feste 30 Prozent Rueckgabe, nur verfuegbarer Bestand, atomare Buchung und Server-Featureflag",
+      "sha256": "42e84dcbd4968143e12a62ab0cc5dde712362459a0dd799cccab37bf52ed1727"
+    },
+    {
+      "version": "2026-10-20.02",
+      "createdAt": "2026-10-20T18:00:00.000Z",
+      "sourceCommit": "42858de37416779368072a4d48ee41547eb46849",
+      "description": "Piratenstufen 1-3 eine Stunde, 4-5 sechs Stunden; bestehende Timer und moderne Game Command integriert",
+      "sha256": "624ca069981153d2ae43b0aee95f32186a012688fdf62302ae0513be9031edcf"
+    },
+    {
+      "version": "2026-10-22.01",
+      "createdAt": "2026-10-22T20:00:00.000Z",
+      "sourceCommit": "3c99df4522ab05229e097a4d2ac97e17c5a8d84c",
+      "description": "Kolonialisierung Stufe 7 und 8 mit je 1 Mio bzw 1,5 Mio aller Ressourcen, erweiterte Spielstandgrenze",
+      "sha256": "116aabda02d2045852480cf47ed2d6a9350d7922b7d292c5cbea52ae65e6d5d6"
+    }
+  ]
+}

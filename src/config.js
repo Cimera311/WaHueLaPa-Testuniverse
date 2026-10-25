@@ -1,0 +1,86 @@
+export const RES = ['metal','crystal','fuel'];
+export const LABEL = {metal:'Metall',crystal:'Kristall',fuel:'Treibstoff'};
+export const ICON = {metal:'◈',crystal:'◆',fuel:'▰'};
+// REALM-CANDIDATE[buildings]: siehe auskommentierten Katalog in src/realm-config.js; noch nicht verdrahtet.
+export const BUILDINGS = {
+ metal:{name:'Metallmine',icon:'⛏',cost:[80,35,0],time:8,description:'Fördert Metall für Gebäude und Schiffe.'},
+ crystal:{name:'Kristallmine',icon:'◆',cost:[65,60,0],time:9,description:'Kristalle für Forschung und Elektronik.'},
+ fuel:{name:'Treibstoffanlage',icon:'▰',cost:[90,50,0],time:10,description:'Versorgt deine Flotten mit Treibstoff.'},
+ solar:{name:'Solarkraftwerk',icon:'☀',cost:[75,40,0],time:8,description:'Liefert 45 × Stufe^Realm-Faktor Energie.'},
+ warehouse:{name:'Lagerkomplex',icon:'▤',cost:[120,60,0],time:10,description:'Erweitert alle lokalen Ressourcenlager.'},
+ lab:{name:'Forschungslabor',icon:'⚗',cost:[150,100,0],time:12,description:'Schaltet imperiumsweite Forschung frei.'},
+ shipyard:{name:'Schiffswerft',icon:'⚒',cost:[200,100,0],time:12,description:'Ab Stufe 2 verkürzt jede weitere Stufe die Bauzeit neuer Aufträge um 8 % gegenüber der vorherigen Stufe. Verbraucht dauerhaft Strom; Strommangel bremst den Schiffbau.',requires:{building:'lab',level:1}},
+ robotics:{name:'Arbeitsroboter',icon:'⚙',cost:[400,300,60],time:20,description:'Verkürzen neue Bauaufträge um 8 % je Stufe.',requires:{tech:'engineering',level:1}},
+ repairDock:{asset:'./assets/pvp-resource-v1/actions/repair.webp',name:'Reparaturdock',icon:'⚒',cost:[1200,800,300],time:60,description:'Repariert beschädigte Einheiten im Orbit. Eigene Warteschlange; jede weitere Stufe verkürzt neue Reparaturen um 8 %. Verbraucht Energie.',requires:{building:'shipyard',level:2}},
+ orbital:{asset:'./assets/pvp-resource-v1/buildings/orbital.webp',name:'Orbitalwerft',icon:'◎',cost:[200,100,0],time:60,description:'Produziert Orbitalgeschütze. Ausbaukosten wie bei der Schiffswerft: Metall und Kristall, kein Treibstoff. Verbraucht dauerhaft Energie. Jede Ausbaustufe verkürzt die Bauzeit und ermöglicht einen zusätzlichen Auftragsplatz (maximal 20).',requires:{tech:'military',level:1}},
+ bunker:{asset:'./assets/pvp-resource-v1/buildings/bunker.webp',name:'Ressourcenbunker',icon:'▣',cost:[450,300,80],time:45,description:'Je Stufe schützt er 2,5 % der Lagerkapazität, insgesamt maximal 2000 je Rohstoff.',requires:{tech:'military',level:1}},
+ tidal:{name:'Gezeitenkraftwerk',icon:'≈',cost:[700,450,80],time:30,description:'Liefert 180 × Stufe^Realm-Faktor Energie auf Ozeanwelten.',requires:{tech:'energy',level:3},ocean:true}
+};
+// REALM-CANDIDATE[research]: siehe auskommentierten Katalog in src/realm-config.js; noch nicht verdrahtet.
+export const TECHS = {
+ scout:{name:'Sensortechnik',description:'Stufe 1: Sonden. Weitere Stufen: kürzere Sondenflüge und frühere PvP-Warnungen. Je Stufe sinkt die Zeit bis zur Erkennung um weitere 10 % (abnehmender absoluter Effekt).',cost:[100,100,30],time:10,lab:1,max:100},
+ logistics:{name:'Transporttechnik',description:'Frachter freischalten; je Stufe +15 % Laderaum.',cost:[150,120,40],time:12,lab:1,max:5,requires:{tech:'scout',level:1}},
+ colonization:{name:'Kolonisierung',description:'Stufen 1–3: die drei Tutorial-Kolonien. Stufen 4–8: zusätzliche Plätze in der gemeinsamen Galaxie.',cost:[350,250,100],time:16,lab:2,max:8,requires:{tech:'scout',level:1}},
+ drive:{name:'Verbrennungstriebwerke',description:'Für Sonden, Kolonieschiffe, kleine Transporter, Kurier und Falke: je Stufe +5 % Antriebsleistung; separate Verbrauchsreduktion von 12 % je Stufe. Stufe 3 ermöglicht Staustrahlforschung.',cost:[200,150,80],time:14,lab:2,max:10,requires:{tech:'logistics',level:1}},
+ ramjet:{name:'Staustrahltriebwerke',description:'Stufe 1: Wächter; Stufe 2: Karawane. Je Stufe +5 % Antriebsleistung und separate Verbrauchsreduktion von 12 % je Stufe nur für diese Schiffe. Stufe 1 bereitet Flüge in die künftige gemeinsame Galaxie vor; Stufe 3 ermöglicht Impulstriebwerke.',cost:[600,450,200],time:24,lab:3,max:10,requires:{tech:'drive',level:3}},
+ impulse:{name:'Impulstriebwerke',description:'Stufe 1: Donner; Stufe 2: Atlas. Je Stufe +5 % Antriebsleistung und separate Verbrauchsreduktion von 12 % je Stufe nur für diese Schiffe. Stufe 3 ermöglicht Hyperraumtriebwerke.',cost:[1800,1400,650],time:40,lab:4,max:10,requires:{tech:'ramjet',level:3}},
+ hyperspace:{name:'Hyperraumtriebwerke',description:'Stufe 1: Titan; Stufe 2: Arche. Je Stufe +5 % Antriebsleistung und separate Verbrauchsreduktion von 12 % je Stufe nur für diese Schiffe.',cost:[5500,4200,2000],time:65,lab:5,max:10,requires:{tech:'impulse',level:3}},
+ engineering:{name:'Bautechnik',description:'Je Stufe 5 % kürzere neue Bauaufträge; Arbeitsroboter.',cost:[250,200,40],time:16,lab:2,max:5},
+ military:{name:'Militärtechnik',description:'Stufen 1–4 schalten Kriegsschiffe und Verteidigung frei. Angriffsplätze: Stufe 1 = 1, Stufe 5 = 2, Stufe 10 = 4 gleichzeitig. Ab Stufe 6 steigen Kosten je Stufe um Faktor 2,4.',cost:[300,220,80],time:18,lab:2,max:10,requires:{tech:'engineering',level:1}},
+ weapons:{asset:'./assets/pvp-resource-v1/research/weapons.webp',name:'Waffentechnik',description:'Je Stufe +8 % Angriffsschaden.',cost:[400,300,100],time:60,lab:3,max:5,requires:{tech:'military',level:1}},
+ shields:{asset:'./assets/pvp-resource-v1/research/shields.webp',name:'Schildtechnik',description:'Je Stufe +8 % Schildstärke.',cost:[350,450,100],time:60,lab:3,max:5,requires:{tech:'military',level:1}},
+ armor:{asset:'./assets/pvp-resource-v1/research/armor.webp',name:'Panzerung',description:'Je Stufe +8 % Hüllenpunkte.',cost:[500,250,100],time:60,lab:3,max:5,requires:{tech:'military',level:1}},
+ assaultDrive:{asset:'./assets/pvp-resource-v1/research/assaultDrive.webp',name:'Falke-Galaxieantrieb',description:'Rüstet Falken für interstellare Angriffe und Stationierungen mit Staustrahlantrieb aus.',cost:[600,400,200],time:60,lab:3,max:1,requires:{tech:'ramjet',level:1}},
+ energy:{name:'Energietechnik',description:'Je Stufe +10 % Energie; Stufe 3: Gezeitenkraftwerk.',cost:[200,180,50],time:15,lab:2,max:5}
+};
+// REALM-CANDIDATE[ships]: siehe auskommentierten Katalog in src/realm-config.js; noch nicht verdrahtet.
+export const SHIPS = {
+ spyProbe:{name:'Spionagesonde',icon:'⌁',category:'civil',image:'probe',role:'Klärt persönliche Piratenstationen auf. Benötigt die passende Sensortechnik für die Zielstufe.',cost:[150,120,40],time:8,tech:'scout',techLevel:1,shipyard:1,cargo:0,speed:2,fuel:2},
+ probe:{name:'Erkundungssonde',icon:'⌁',category:'civil',role:'Erkundet unbekannte Welten.',cost:[90,60,20],time:5,tech:'scout',cargo:0,speed:1,fuel:1.5},
+ transport:{name:'Kleiner Transporter',icon:'➤',category:'freighter',role:'Bewährter Allrounder für deine ersten Kolonien.',cost:[180,100,40],time:8,tech:'logistics',cargo:1000,speed:1,fuel:4},
+ longProbe:{name:'Fernsonde',icon:'⌁',category:'civil',image:'probe',role:'Untersucht Planeten in der gemeinsamen Galaxie.',cost:[280,200,80],time:10,tech:'scout',techLevel:2,shipyard:2,engine:'ramjet',engineLevel:1,cargo:0,speed:1,fuel:3},
+ starColony:{name:'Interstellares Kolonieschiff',icon:'✦',category:'civil',image:'colony',role:'Besiedelt eine erkundete Galaxiewelt und wird dabei verbraucht.',cost:[1200,850,400],time:30,tech:'colonization',techLevel:4,shipyard:3,engine:'ramjet',engineLevel:1,cargo:0,speed:1,fuel:18},
+ colony:{name:'Kolonieschiff',icon:'✦',category:'civil',role:'Gründet eine Kolonie und wird dabei verbraucht.',cost:[500,300,100],time:12,tech:'colonization',cargo:0,speed:1,fuel:4},
+ kurier:{name:'Kurier',icon:'➤',category:'freighter',tier:1,role:'Leichter Frachter für schnelle kleine Lieferungen.',cost:[140,80,30],time:6,tech:'logistics',techLevel:1,shipyard:1,cargo:750,speed:1.35,fuel:3},
+ karawane:{name:'Karawane',icon:'➤',category:'freighter',tier:2,role:'Modulfrachter für regelmäßige Handelsrouten.',cost:[800,450,180],time:20,tech:'logistics',techLevel:2,shipyard:2,engine:'ramjet',engineLevel:2,cargo:5000,speed:.9,fuel:12},
+ atlas:{name:'Atlas',icon:'➤',category:'freighter',tier:3,role:'Schwerlastfrachter für den Ausbau ganzer Kolonien.',cost:[2400,1400,600],time:45,tech:'logistics',techLevel:3,shipyard:4,engine:'impulse',engineLevel:2,cargo:16000,speed:.7,fuel:28},
+ arche:{name:'Arche',icon:'➤',category:'freighter',tier:4,role:'Megafrachter für große Sammellieferungen.',cost:[7600,4400,2000],time:90,tech:'logistics',techLevel:5,shipyard:6,engine:'hyperspace',engineLevel:2,cargo:50000,speed:.55,fuel:70},
+ falke:{name:'Falke',icon:'✧',category:'military',tier:1,role:'Abfangjäger für schnelle Verlegungen.',cost:[240,150,60],time:60,tech:'military',techLevel:1,shipyard:1,cargo:0,speed:1.5,fuel:6},
+ waechter:{name:'Wächter',icon:'✧',category:'military',tier:2,role:'Eskortfregatte als Grundlage für späteren Geleitschutz.',cost:[900,600,220],time:180,tech:'military',techLevel:2,shipyard:2,engine:'ramjet',engineLevel:1,cargo:0,speed:1.1,fuel:16},
+ donner:{name:'Donner',icon:'✧',category:'military',tier:3,role:'Angriffskreuzer für die spätere Kampfflotte.',cost:[3000,1800,700],time:480,tech:'military',techLevel:3,shipyard:4,engine:'impulse',engineLevel:1,cargo:0,speed:.85,fuel:40},
+ flak:{asset:'./assets/pvp-resource-v1/defense/flak.webp',name:'Flakplattform',icon:'✣',category:'defense',role:'Leichte Trägerplattform mit Flakbewaffnung.',cost:[240,150,60],time:60,tech:'military',techLevel:1,shipyard:1,slots:1,cargo:0,speed:0,fuel:0},
+ laser:{asset:'./assets/pvp-resource-v1/defense/laser.webp',name:'Laserplattform',icon:'⊕',category:'defense',role:'Mittlere Trägerplattform mit Lasergeschütz.',cost:[900,600,220],time:180,tech:'military',techLevel:2,shipyard:2,slots:1,cargo:0,speed:0,fuel:0},
+ rail:{asset:'./assets/pvp-resource-v1/defense/rail.webp',name:'Railgunplattform',icon:'⌖',category:'defense',role:'Schwere Trägerplattform mit Railgun.',cost:[3000,1800,700],time:480,tech:'military',techLevel:3,shipyard:4,slots:1,cargo:0,speed:0,fuel:0},
+ plasma:{asset:'./assets/pvp-resource-v1/defense/plasma.webp',name:'Plasmaplattform',icon:'✺',category:'defense',role:'Großplattform mit Plasmageschütz.',cost:[9500,6500,2500],time:1200,tech:'military',techLevel:4,shipyard:6,slots:1,cargo:0,speed:0,fuel:0},
+ titan:{name:'Titan',icon:'✧',category:'military',tier:4,role:'Schlachtschiff als Kern einer schweren Flotte.',cost:[9500,6500,2500],time:1200,tech:'military',techLevel:4,shipyard:6,engine:'hyperspace',engineLevel:1,cargo:0,speed:.6,fuel:100}
+};
+export function isFreighter(key){return SHIPS[key]?.category==='freighter';}
+// REALM-CANDIDATE[tutorialPlanets]: siehe auskommentierten Katalog in src/realm-config.js; noch nicht verdrahtet.
+export const TARGETS = [
+ {id:'ferrum',name:'Ferrum',coord:'1:2:7',kind:'Gesteinsplanet',specialty:'Metall',distance:2,mult:[1.8,0.75,0.65],color:'#ba7047',ocean:false,energy:1},
+ {id:'nereus',name:'Nereus',coord:'1:3:7',kind:'Eisplanet',specialty:'Treibstoff',distance:3,mult:[0.7,1,1.9],color:'#80cbe3',ocean:false,energy:1.2},
+ {id:'thalassa',name:'Thalassa',coord:'1:4:5',kind:'Ozeanplanet',specialty:'Kristall',distance:4,mult:[0.85,1.6,1.1],color:'#3c92c9',ocean:true,energy:1}
+];
+export function vector(values){return Object.fromEntries(RES.map((k,i)=>[k,values[i]]));}
+// REALM-CANDIDATE[costGrowth]: siehe auskommentierten Katalog in src/realm-config.js; noch nicht verdrahtet.
+export function costAt(item,level){if(item===TECHS.colonization&&level>=6&&level<8)return vector([level===6?1000000:1500000,level===6?1000000:1500000,level===6?1000000:1500000]);return vector(item.cost.map(v=>Math.ceil(v*Math.pow(1.6,level)*Math.pow(item===TECHS.military?1.5:1,Math.max(0,level-4)))));}
+// REALM-CANDIDATE[routeEconomy]: siehe auskommentierten Katalog in src/realm-config.js; noch nicht verdrahtet.
+export const ROUTE_ECONOMY={time:1,fuel:.75};
+
+// Cosmetic selection only: preserve tutorial art and keep shared planet variants stable across accounts.
+export function planetImagePath(p){
+ const families={home:'continental',ferrum:'rock',nereus:'ice',thalassa:'ocean'};
+ const base=Object.hasOwn(families,p.image||p.id)?(p.image||p.id):'home';
+ if(!/^g-[a-z]+-p(?:[1-9]|10)$/.test(p.id||''))return `./assets/${base}.webp`;
+ let hash=2166136261;
+ for(const c of 'planet-art-v2:'+p.id)hash=Math.imul(hash^c.charCodeAt(0),16777619)>>>0;
+ const variant=hash%4;
+ return variant?`./assets/planets-v2/${families[base]}-v${variant}.webp`:`./assets/${base}.webp`;
+}
+
+// The researched Falke retrofit applies to every interstellar flight type.
+export function shipFlightEngine(s,key,remote=false){return remote&&key==='spyProbe'?'ramjet':remote&&key==='falke'&&(s.tech.assaultDrive||0)>=1?'ramjet':SHIPS[key]?.engine||'drive';}
+export function canFlyInterstellar(s,key){const engine=shipFlightEngine(s,key,true);return (key==='falke'?(s.tech.assaultDrive||0)>=1:!!SHIPS[key]?.engine)&&(s.tech[engine]||0)>=1;}
+
+// REALM-CANDIDATE[attackSlots]: siehe auskommentierten Katalog in src/realm-config.js; noch nicht verdrahtet.
+export function attackSlots(level){return level>=10?4:level>=5?2:level>=1?1:0;}

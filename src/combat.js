@@ -1,0 +1,126 @@
+import {RES,SHIPS,vector,shipFlightEngine,canFlyInterstellar} from './config.js';
+import {sharedDistance,sharedFlight} from './flight.js';
+// REALM-CANDIDATE[combatStats]: siehe auskommentierten Katalog in src/realm-config.js; noch nicht verdrahtet.
+export const COMBAT={
+ spyProbe:{hp:30,shield:0,attack:0,shots:1},
+ probe:{hp:30,shield:0,attack:0,shots:1},longProbe:{hp:60,shield:10,attack:0,shots:1},
+ colony:{hp:250,shield:30,attack:0,shots:1},starColony:{hp:500,shield:80,attack:0,shots:1},
+ transport:{hp:100,shield:20,attack:0,shots:1},kurier:{hp:80,shield:10,attack:0,shots:1},
+ karawane:{hp:450,shield:80,attack:0,shots:1},atlas:{hp:1400,shield:200,attack:0,shots:1},arche:{hp:4000,shield:600,attack:0,shots:1},
+ falke:{hp:160,shield:40,attack:30,shots:1,bonus:{donner:.25,titan:.25}},
+ waechter:{hp:650,shield:180,attack:100,shots:2,bonus:{falke:.5}},
+ donner:{hp:2000,shield:400,attack:350,shots:2,bonus:{flak:.5,laser:.5,rail:.5,plasma:.5}},
+ titan:{hp:6500,shield:1400,attack:1100,shots:4,bonus:{waechter:.25,donner:.25}},
+ flak:{hp:180,shield:30,attack:35,shots:2,bonus:{falke:.75}},
+ laser:{hp:600,shield:150,attack:100,shots:2},
+ rail:{hp:1600,shield:300,attack:300,shots:1,bonus:{donner:.25,titan:.25}},
+ plasma:{hp:4500,shield:800,attack:800,shots:2,bonus:{titan:.25}}
+};
+// REALM-CANDIDATE[combatResearch]: siehe auskommentierten Katalog in src/realm-config.js; noch nicht verdrahtet.
+export function combatStats(key,tech={}){
+ const c=COMBAT[key];if(!c)throw Error('Unbekannte Kampfeinheit.');
+ return {...c,hp:c.hp*(1+.08*(tech.armor||0)),shield:c.shield*(1+.08*(tech.shields||0)),attack:c.attack*(1+.08*(tech.weapons||0))};
+}
+export function attackFleet(fleet){
+ if(!fleet||typeof fleet!=='object'||Array.isArray(fleet))throw Error('Ungültige Angriffsflotte.');
+ const entries=Object.entries(fleet);if(!entries.length||entries.some(([k,n])=>!['military','freighter'].includes(SHIPS[k]?.category)||!Number.isSafeInteger(n)||n<1)||!entries.some(([k])=>SHIPS[k].category==='military'))throw Error('Wähle mindestens ein Kriegsschiff und verfügbare Schiffe in ganzen Zahlen.');
+ return {...fleet};
+}
+export function attackFlight(s,from,to,fleet){
+ attackFleet(fleet);if(!to.system)throw Error('Angriffsziele müssen fremde gemeinsame Kolonien sein.');
+ const origin=from.system?from:{...s.galaxy,slot:0};
+ if(![origin.x,origin.y,origin.slot,to.x,to.y,to.slot].every(Number.isFinite))throw Error('Der persönliche Galaxie-Startplatz fehlt. Bitte die Galaxie aktualisieren.');
+ if(!from.system&&(s.tech.ramjet||0)<1)throw Error('Für Angriffe aus dem Heimatsystem fehlen Staustrahltriebwerke Stufe 1.');
+ const dist=sharedDistance(from,to,s.galaxy);
+ let ms=0,fuel=0,slowest='';
+ for(const [key,count] of Object.entries(fleet)){
+  const remote=from.system!==to.system;
+  const engine=shipFlightEngine(s,key,remote);
+  if(remote&&!canFlyInterstellar(s,key))throw Error(key==='falke'?'Für interstellare Flüge fehlt ein geeigneter Antrieb: Falke-Galaxieantrieb 1 und Staustrahltriebwerke 1 erforderlich.':'Für interstellare Flüge fehlt ein geeigneter Antrieb.');
+  if(remote&&(s.tech[engine]||0)<1)throw Error('Für interstellare Flüge fehlt die passende Triebwerksforschung.');
+  const f=sharedFlight(s,from,to,count,key);
+  if(f.ms>ms){ms=f.ms;slowest=key;}fuel+=f.fuel*2;
+ }
+ return {distance:dist,ms,fuel,slowest};
+}
+// REALM-CANDIDATE[sensorWarning]: siehe auskommentierten Katalog in src/realm-config.js; noch nicht verdrahtet.
+export function warningFraction(sensorLevel){return Math.pow(.9,Math.max(0,sensorLevel)+1);}
+export function takeHulls(p,fleet){const out={};p.hulls??={};for(const [k,n] of Object.entries(fleet)){const damaged=p.hulls[k]||[];out[k]=damaged.splice(0,n);if(!damaged.length)delete p.hulls[k];}return out;}
+export function putHulls(p,hulls={}){p.hulls??={};for(const [k,hp] of Object.entries(hulls))if(hp.length)p.hulls[k]=[...(p.hulls[k]||[]),...hp];}
+function rng(seed){let n=2166136261;for(const c of seed)n=Math.imul(n^c.charCodeAt(0),16777619)>>>0;return ()=>{n^=n<<13;n^=n>>>17;n^=n<<5;return (n>>>0)/4294967296;};}
+function units(fleet,tech,hulls,shieldFactor=1){
+ const out=[];for(const key of Object.keys(fleet).sort()){const n=fleet[key];if(!Number.isSafeInteger(n)||n<0)throw Error('Ungültiger Flottenbestand.');const z=combatStats(key,tech);z.shield*=shieldFactor;for(let i=0;i<n;i++)out.push({key,...z,maxHp:z.hp,hp:z.hp*(hulls?.[key]?.[i]??1)});}return out;
+}
+function combatSide(side){if(!side.groups)return units(side.fleet,side.tech,side.hulls,side.shieldFactor);return side.groups.flatMap(g=>units(g.fleet,g.tech,g.hulls,g.shieldFactor).map(u=>({...u,groupId:g.id,owner:g.owner,commander:g.commander,maxShield:combatStats(u.key,g.tech).shield})));}
+function combatGroups(side,list){return side.groups?{defenderGroups:side.groups.map(g=>({id:g.id,owner:g.owner,...survivors(list.filter(u=>u.groupId===g.id)),...(g.id?.startsWith('repair:')?{repairUnits:list.filter(u=>u.groupId===g.id).map(u=>({hp:Math.max(0,u.hp),maxHp:u.maxHp}))}:{})}))}:{};}
+function survivors(list){const fleet={},hulls={};for(const u of list)if(u.hp>1e-8){fleet[u.key]=(fleet[u.key]||0)+1;if(u.hp<u.maxHp-1e-8)(hulls[u.key]??=[]).push(u.hp/u.maxHp);}return {fleet,hulls};}
+// REALM-CANDIDATE[legacyCombat]: siehe auskommentierten Katalog in src/realm-config.js; noch nicht verdrahtet.
+function resolveBattleLegacy(attacker,defender,seed){
+ const a=combatSide(attacker),d=combatSide(defender),random=rng(seed),rounds=[];
+ for(let i=1;i<=6;i++){
+  const aa=a.filter(u=>u.hp>1e-8),dd=d.filter(u=>u.hp>1e-8);if(!aa.length||!dd.length)break;
+  const damage=new Map();
+  function fire(shooters,targets){for(const u of shooters)if(u.attack)for(let shot=0;shot<u.shots;shot++){const target=targets[Math.floor(random()*targets.length)],hit=u.attack/u.shots*(1+(u.bonus?.[target.key]||0));damage.set(target,(damage.get(target)||0)+hit);}}
+  fire(aa,dd);fire(dd,aa);
+  for(const [u,hit] of damage){const shield=Math.min(u.shield,hit);u.shield-=shield;u.hp-=hit-shield;}
+  rounds.push({round:i,attacker:a.filter(u=>u.hp>1e-8).length,defender:d.filter(u=>u.hp>1e-8).length});
+ }
+ const aa=survivors(a),dd=survivors(d),ac=Object.values(aa.fleet).reduce((a,b)=>a+b,0),dc=Object.values(dd.fleet).reduce((a,b)=>a+b,0);
+ const debris=vector([0,0,0]),defenseRepair=vector([0,0,0]);
+ for(const u of [...a,...d])if(u.hp<=1e-8){const sh=SHIPS[u.key],out=debris,rate=.3;out.metal+=sh.cost[0]*rate;out.crystal+=sh.cost[1]*rate;}
+ for(const k of RES){debris[k]=Math.floor(debris[k]);defenseRepair[k]=Math.floor(defenseRepair[k]);}
+ return {outcome:ac&&!dc?'attacker':dc&&!ac?'defender':'draw',attacker:aa,defender:dd,debris,defenseRepair,rounds,...combatGroups(defender,d)};
+}
+
+export const COMBAT_RULE_VERSION=3;
+export function resolveBattle(attacker,defender,seed,version=COMBAT_RULE_VERSION){
+ if(version===1)return resolveBattleLegacy(attacker,defender,seed);
+ if(version!==2&&version!==3)throw Error('Unbekannte Kampfregelversion.');
+ const a=combatSide(attacker),d=combatSide(defender),random=rng(String(seed)),rounds=[],logs=[];
+ for(const [side,list] of [['A',a],['D',d]]){const counts={};for(const u of list){counts[u.key]=(counts[u.key]||0)+1;u.id=side+'-'+u.key+'-'+String(counts[u.key]).padStart(3,'0');}}
+ const snapshot=u=>({...(u.owner?{owner:u.owner,groupId:u.groupId,commander:u.commander}:{}),id:u.id,key:u.key,side:u.id[0]==='A'?'attacker':'defender',category:SHIPS[u.key].category,name:SHIPS[u.key].name,definition:{...COMBAT[u.key],cost:[...SHIPS[u.key].cost]},hp:Math.max(0,u.hp),maxHp:u.maxHp,shield:u.shield,maxShield:u.maxShield??combatStats(u.key,u.id[0]==='A'?attacker.tech:defender.tech).shield,attack:u.attack,shots:u.shots,bonus:{...u.bonus}});
+ const initial=[...a,...d].map(snapshot);
+ const total=list=>({count:list.filter(u=>u.hp>1e-8).length,hp:list.reduce((n,u)=>n+Math.max(0,u.hp),0),shield:list.filter(u=>u.hp>1e-8).reduce((n,u)=>n+u.shield,0)});
+ for(let round=version===3?0:1;round<=6;round++){
+  const aa=a.filter(u=>u.hp>1e-8),dd=d.filter(u=>u.hp>1e-8);if(!aa.length||!dd.length)break;
+  const opening=version===3&&round===0,platforms=opening?dd.filter(u=>SHIPS[u.key].category==='defense'):[];
+  if(opening&&!platforms.length)continue;
+  const damage=new Map(),shots=[];
+  function fire(shooters,targets){
+   const military=targets.filter(t=>SHIPS[t.key].category==='military');
+   const allowed=military.length?targets.filter(t=>['military','defense'].includes(SHIPS[t.key].category)):targets;
+   const defense=allowed.filter(t=>SHIPS[t.key].category==='defense'),pools=new Map();
+   for(const u of shooters)if(u.attack){
+    if(!pools.has(u.key)){const bonusTargets=allowed.filter(t=>(u.bonus?.[t.key]||0)>0);pools.set(u.key,{pool:bonusTargets.length?bonusTargets:military.length?military:defense.length?defense:allowed,reason:bonusTargets.length?'bonus':military.length?'military':defense.length?'defense':'civil'});}
+    const {pool,reason}=pools.get(u.key);
+    for(let shot=1;shot<=u.shots;shot++){
+     const target=pool[Math.floor(random()*pool.length)],base=u.attack/u.shots,bonus=u.bonus?.[target.key]||0,hit=base*(1+bonus);
+     shots.push({shooter:u.id,target:target.id,shot,base,bonus,damage:hit,reason});damage.set(target,(damage.get(target)||0)+hit);
+    }
+   }
+  }
+  if(!opening)fire(aa,dd);
+  fire(opening?platforms:dd,aa);
+  const impacts=[];
+  for(const [u,hit] of damage){
+   const hpBefore=u.hp,shieldBefore=u.shield,shieldDamage=Math.min(u.shield,hit),hullDamage=Math.min(Math.max(0,u.hp),hit-shieldDamage);
+   u.shield-=shieldDamage;u.hp-=hit-shieldDamage;
+   impacts.push({target:u.id,damage:hit,shieldDamage,hullDamage,overkill:Math.max(0,hit-shieldDamage-hpBefore),hpBefore,shieldBefore,hpAfter:Math.max(0,u.hp),shieldAfter:u.hp>1e-8?u.shield:0,destroyed:u.hp<=1e-8});
+  }
+  const after={attacker:total(a),defender:total(d)};
+  rounds.push({round,attacker:after.attacker.count,defender:after.defender.count});
+  logs.push({round,shots,impacts,after});
+ }
+ const aa=survivors(a),dd=survivors(d),ac=Object.values(aa.fleet).reduce((n,v)=>n+v,0),dc=Object.values(dd.fleet).reduce((n,v)=>n+v,0),outcome=ac&&!dc?'attacker':dc&&!ac?'defender':'draw';
+ const debris=vector([0,0,0]),defenseRepair=vector([0,0,0]);
+ for(const u of [...a,...d])if(u.hp<=1e-8){const sh=SHIPS[u.key],out=debris,rate=.3;out.metal+=sh.cost[0]*rate;out.crystal+=sh.cost[1]*rate;}
+ for(const k of RES){debris[k]=Math.floor(debris[k]);defenseRepair[k]=Math.floor(defenseRepair[k]);}
+ return {outcome,attacker:aa,defender:dd,debris,defenseRepair,rounds,...combatGroups(defender,d),trace:{...(defender.groups?{defenderGroups:structuredClone(defender.groups)}:{}),version:1,ruleVersion:version,seed:String(seed),tech:{attacker:{...attacker.tech},defender:{...defender.tech}},shieldFactors:{attacker:attacker.shieldFactor??1,defender:defender.shieldFactor??1},initial,final:[...a,...d].map(snapshot),rounds:logs}};
+}
+
+export function loadPlunder(stock,depot,bunker,capacity,debris,victory){
+ const loot=vector([0,0,0]),salvage=vector([0,0,0]);let room=Math.max(0,capacity);
+ if(victory)for(const k of RES){loot[k]=Math.min(room,Math.floor(Math.max(0,stock[k]+depot[k]-bunker)*.25));room-=loot[k];}
+ if(victory)for(const k of RES){salvage[k]=Math.min(room,debris[k]);room-=salvage[k];}
+ return {loot,salvage,cargo:vector(RES.map(k=>loot[k]+salvage[k]))};
+}
