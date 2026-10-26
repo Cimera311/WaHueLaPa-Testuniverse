@@ -1,6 +1,6 @@
 # Serveroptimierung – Arbeitsplan und Agentenübergabe
 
-Stand: 25.10.2026 · Arbeitsrepo: **Cimera311/WaHueLaPa-Testuniverse**
+Stand: 26.10.2026 · Arbeitsrepo: **Cimera311/WaHueLaPa-Testuniverse**
 
 Diese Datei ist das gemeinsame Arbeitsprotokoll. Jeder bearbeitete Schritt erhält hier Status, Änderungen, Nachweise und eine konkrete Übergabe. Die Datei liegt im beim LIVE→TEST-Sync geschützten Ordner `test-only`.
 
@@ -342,3 +342,30 @@ Korrektur ergänzen statt dessen Historie zu überschreiben.
 - Rollback: Faktor 3 wiederherstellen und Browser/Bundle gemeinsam bauen/aktualisieren; bestehende Fluege nicht nachtraeglich umschreiben.
 - PR: https://github.com/Cimera311/WaHueLaPa-Testuniverse/pull/13. Automatisch: 43/43 gezielte Flug-/PvP-/Cargo-/Compact-Tests erfolgreich, Website-Build und Test-Tools.ps1 (Kopie/Sicherung/Idempotenz/Zielschutz) erfolgreich. Vollsuite und aktuelle GitHub-Checks siehe PR. Kampf gegen Aster 2 noch nicht ausgefuehrt; der Angriff erfolgt durch Sebastian.
 - News-Entwurf, nur Test: Fuer den PvP-Test sind neue Galaxiefluege beschleunigt. Laufende Fluege behalten ihre bisherigen Zeiten. Keine Live-Aenderung.
+
+### 2026-10-25 - Windows-Test: stale Edge-Worker nach Dateikopie
+
+- Befund: Browser, Dashboard-Bundle, lokale index.ts und im Container sichtbare Datei hatten bereits Faktor 0.1 und den erwarteten SHA256 e6db8a24f69fac0e16e035212a8038d67175ea610e8f935beedeac61091a6ba1. Der danach gestartete Testangriff wurde trotzdem mit 729,627 Sekunden Hinflug gespeichert; mit Faktor 0.1 waeren es rund 24,321 Sekunden. Der Faktorunterschied entspricht genau 30.
+- Bewertung: Ein weiterverwendeter alter Edge-Worker ist die naheliegende Ursache; ein frischer erfolgreicher Angriff wurde noch nicht verifiziert.
+- Sofortmassnahme: ausschliesslich supabase_edge_runtime_WahuelapaTest neu gestartet; Docker bestaetigte danach Running=true. Keine Datenbank-/Angriffstimer geaendert. Danach Verbindung zum lokalen Rechner verloren, daher keine weitere lokale Laufzeitpruefung behauptet.
+- Fix: Start-Test startet eine bereits laufende lokale Test-Edge-Runtime vor functions serve neu. Update-Test -ReloadEdge erzwingt denselben frischen Worker auch bei unveraenderter Dateipruefsumme. Ohne Schalter bleibt Update-Test kopierend. Fester Containername; kein DB-Neustart.
+- Lokal vor Verbindungsabbruch geprueft: Syntax aller vier PowerShell-Dateien; Kopie/Sicherung/Idempotenz/Zielschutz sowie vollstaendig gemockte Docker-Tests fuer expliziten Reload, gestoppten Container und Restartfehler erfolgreich.
+- Neue SQL / Game-command: keine. Bestehende 2026-10-25.03 bleibt unveraendert.
+- Aktivierung nach Merge: lokal aktualisieren; Update-Test.ps1 -ReloadEdge, Browser Strg+F5. Alternativ normaler Neustart mit Start-Test.ps1 -Metrics -CompactSnapshot. Gespeicherte Missionen behalten ihre Zeitpunkte.
+- Grenzen: neuer Angriff mit rund 25 Sekunden noch zu bestaetigen; laufenden Aster-2-Angriff nicht nachtraeglich geaendert. Keine Live-Aenderung.
+
+### 2026-10-26 - Lokale CPU-Grenzen bei jedem Teststart setzen
+
+- Auftrag: Sebastian; Erweiterung von PR #14 auf Branch codex/fix-test-edge-reload.
+- Befund: CLI-Main-Worker der lokalen Runtime 1.77.8 uebergibt 1000/2000 ms CPU soft/hard. Wiederholte WorkerRequestCancelled/503; nach manueller Anhebung erfolgreich. Neuer functions-serve-Start regeneriert die Datei und verliert den Patch. CLI entfernt beim Container-Neustart teilweise die Runtime.
+- Aenderung: start-test-edge.mjs bootstrapt eine neue Runtime, trennt nur seinen eigenen CLI-Prozessbaum, sichert/patcht den Main-Worker und verifiziert 30/60 Sekunden nach Neustart sowie swift-handler-Erreichbarkeit. Start-Test startet den Webserver erst nach Erfolg; zweites Fenster folgt Docker-Logs. Name/Projekt/Arbeitsordner werden geprueft; unbekannte Syntax stoppt den Start.
+- Limits sind lokale Betriebsparameter, keine Aenderung von Spielregeln oder SQL. Standard 30/60 s; Vergleich 1/2 s ueber CpuSoftSeconds/CpuHardSeconds. Keine neue Game-command und kein Cloud-Deploy.
+- Beobachtung vor dieser Implementierung: erster erfolgreicher Compact-Sync 5138,774 ms gesamt, Simulation 4393,556 ms inklusive PvP 210,995 ms; zwei Folge-Syncs 402,560 und 394,175 ms. Alter Angriff auf Aster 2 zurueckgekehrt, Bericht draw; gespeicherte Flugzeit unveraendert 729,627 s. Kein neuer Kurzflug nachgewiesen.
+- Isolierter Kontrolllauf auf Kopien aktueller 14 Spielstaende: 24h vorwaerts unter Node, keine DB-Schreiboperation. Ein Spielstand mit 6 aktiven Routen: 6426,52 ms; ohne Routen 1,10 ms. Andere aktive Routen ebenfalls deutlich teurer. Gemessene Wandzeit, keine CPU-Zeit und kein exakter Replay des fehlgeschlagenen Requests. Befund priorisiert Routen-Nachholung; keine Kapazitaetsgarantie.
+- Tests und echter Neustartnachweis werden vor PR-Uebergabe unten ergaenzt. Routenalgorithmus noch nicht veraendert. Vector-Neustarts bleiben separater Logging-Fehler.
+- Rollback: Start mit 1/2 Sekunden; CLI-Defaults oder Containerkopie index.cpu-default.ts. Keine Datenwiederherstellung noetig.
+- Live: nicht begonnen. Naechster Schritt: Routen-Nachholung gezielt optimieren und gegen unveraenderte Ergebnisse pruefen.
+
+- Automatische lokale Pruefung final: 4/4 CPU-Adaptertests (Defaults/Bounds, Minifier/Numerik/Idempotenz/Rollback, unbekannte Syntax, Container-/Projekt-/Pfadschutz), PowerShell-Parser aller vier Skripte und Test-Tools.ps1 mit gemocktem Docker erfolgreich. Docker-Inspect wird explizit auf Typ container begrenzt, da ein gleichnamiges Cache-Volume existiert.
+- Echte Windows/Docker-Pruefung: finaler Starter erfolgreich bei fehlender Runtime sowie zweimal nacheinander bei vorhandener Runtime. Jeweils neuer Container ueber CLI, eigene Prozessbaumtrennung, 30/60 Sekunden nach Docker-Neustart verifiziert und swift-handler GET 405 (erwarteter Erreichbarkeitstest). Kein authentifizierter Spielauftrag durch diesen Startertest; kein gesamter Start-Test-/Browser-Neustart automatisch durchgefuehrt. Die vorherigen erfolgreichen Spielabgleiche stammen vom manuellen Patch.
+- Aktivierung nach Merge/Pull: bisherigen Webserver beenden, Start-Test.ps1 -Metrics -CompactSnapshot. Auf CPU-Limits-verifiziert warten. Update-Test.ps1 -ReloadEdge bei spaeterem Bundle-Update; manuellen functions-serve-Befehl vermeiden. Keine SQL und keine neue Game-command.

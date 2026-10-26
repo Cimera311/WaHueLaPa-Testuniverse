@@ -2,9 +2,12 @@ param(
     [string]$SupabaseDir = (Join-Path ([Environment]::GetFolderPath('MyDocuments')) 'Docker\Subabase\WahuelapaTest'),
     [string]$PublishableKey = '',
     [switch]$Metrics,
-    [switch]$CompactSnapshot
+    [switch]$CompactSnapshot,
+    [ValidateRange(1,300)][int]$CpuSoftSeconds = 30,
+    [ValidateRange(1,300)][int]$CpuHardSeconds = 60
 )
 $ErrorActionPreference = 'Stop'
+if ($CpuSoftSeconds -gt $CpuHardSeconds) { throw 'CpuSoftSeconds darf CpuHardSeconds nicht ueberschreiten.' }
 $repoDir = Split-Path $PSScriptRoot -Parent
 $SupabaseDir = (Resolve-Path -LiteralPath $SupabaseDir).Path
 $cli = Join-Path $SupabaseDir 'node_modules\.bin\supabase.cmd'
@@ -54,21 +57,18 @@ try {
     $runtimeConfig = Join-Path $runtimeDir 'cloud-config.json'
     $config = @{enabled=$true; commandFunction='swift-handler'; url=$status.API_URL; publishableKey=$PublishableKey; redirectUrl='http://localhost:3000/'}
     [IO.File]::WriteAllText($runtimeConfig, ($config | ConvertTo-Json), (New-Object Text.UTF8Encoding($false)))
-    # Encode the command to preserve spaces/apostrophes in Windows paths.
-    $quotedDir = $SupabaseDir.Replace("'", "''")
-    $quotedCli = $cli.Replace("'", "''")
-    $command = "Set-Location -LiteralPath '$quotedDir'; & '$quotedCli' functions serve swift-handler --no-verify-jwt"
-    if ($Metrics -or $CompactSnapshot) {
-        $metricsFile = Join-Path $PSScriptRoot '.runtime\metrics.env'
-        [IO.File]::WriteAllText($metricsFile, "GAME_COMMAND_METRICS_RATE=$(if ($Metrics) { 1 } else { 0 })" + [Environment]::NewLine + "GAME_COMMAND_SNAPSHOT=$(if ($CompactSnapshot) { 'compact' } else { 'legacy' })" + [Environment]::NewLine, (New-Object Text.UTF8Encoding($false)))
-        $quotedMetrics = $metricsFile.Replace("'", "''")
-        $command += " --env-file '$quotedMetrics'"
-        if ($Metrics) { Write-Host 'O1-Messung aktiv: ein kompakter Datensatz je Auftrag im Edge-Log.' }
-        if ($CompactSnapshot) { Write-Host 'O3 kompakter Snapshot aktiv. Neue Test-SQL muss bereits installiert sein.' }
-    }
+    $metricsFile = Join-Path $PSScriptRoot '.runtime\metrics.env'
+    [IO.File]::WriteAllText($metricsFile, "GAME_COMMAND_METRICS_RATE=$(if ($Metrics) { 1 } else { 0 })" + [Environment]::NewLine + "GAME_COMMAND_SNAPSHOT=$(if ($CompactSnapshot) { 'compact' } else { 'legacy' })" + [Environment]::NewLine, (New-Object Text.UTF8Encoding($false)))
+    if ($Metrics) { Write-Host 'O1-Messung aktiv.' }
+    if ($CompactSnapshot) { Write-Host 'O3 kompakter Snapshot aktiv; Test-SQL muss installiert sein.' }
+    & node (Join-Path $PSScriptRoot 'start-test-edge.mjs') $SupabaseDir $metricsFile $CpuSoftSeconds $CpuHardSeconds
+    if ($LASTEXITCODE -ne 0) { throw 'Test-Edge nicht bereit. Webserver wird nicht gestartet.' }
+    # Follow Docker logs instead of keeping a CLI supervisor alive.
+    $logSince = (Get-Date).ToUniversalTime().ToString('o')
+    $command = "docker logs --follow --since '$logSince' supabase_edge_runtime_WahuelapaTest"
     $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($command))
     Start-Process powershell.exe -ArgumentList @('-NoProfile','-NoExit','-EncodedCommand',$encoded)
-    Write-Host 'Edge-Fenster offen lassen; auf Serving functions warten. Website dann im Browser oeffnen.'
+    Write-Host 'CPU-Limits verifiziert; zweites Fenster zeigt Edge-Logs. Website wird gestartet.'
     & node (Join-Path $PSScriptRoot 'local-server.mjs') $runtimeConfig
     if ($LASTEXITCODE -ne 0) { throw 'Lokaler Webserver wurde mit einem Fehler beendet.' }
 } finally {
