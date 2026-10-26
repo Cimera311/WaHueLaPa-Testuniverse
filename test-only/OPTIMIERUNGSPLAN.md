@@ -75,6 +75,7 @@ Statuswerte: **OFFEN**, **IN ARBEIT**, **PR BEREIT**, **LOKAL ABGENOMMEN**, **LI
 |---|---|---|---|---|
 | T0 | Isolierter Testbetrieb und Startwerkzeuge | – | LOKAL ABGENOMMEN | Einrichtungschat / Test-PR #2 |
 | O1 | Messpunkte und reproduzierbare Baseline | T0 | IN ARBEIT | Codex / `codex/o1-command-metrics` / [PR #6](https://github.com/Cimera311/WaHueLaPa-Testuniverse/pull/6); lokale Baseline offen |
+| O1a | Routen-Nachholung: Produktionswerte | O1 | IN ARBEIT | Codex / codex/route-production-cache |
 | O2 | Serverseitiger Wartungsmodus und Restore-Probe | T0 | OFFEN | – |
 | O3 | Snapshot/Payload und Lesezugriffe entlasten | O1 | IN ARBEIT | Codex / `codex/o3-compact-snapshot` / [PR #11](https://github.com/Cimera311/WaHueLaPa-Testuniverse/pull/11) |
 | O4 | Spielerbezogene Commands und atomare Idempotenz | O1, O2; O3 auswerten | OFFEN | – |
@@ -369,3 +370,13 @@ Korrektur ergänzen statt dessen Historie zu überschreiben.
 - Automatische lokale Pruefung final: 4/4 CPU-Adaptertests (Defaults/Bounds, Minifier/Numerik/Idempotenz/Rollback, unbekannte Syntax, Container-/Projekt-/Pfadschutz), PowerShell-Parser aller vier Skripte und Test-Tools.ps1 mit gemocktem Docker erfolgreich. Docker-Inspect wird explizit auf Typ container begrenzt, da ein gleichnamiges Cache-Volume existiert.
 - Echte Windows/Docker-Pruefung: finaler Starter erfolgreich bei fehlender Runtime sowie zweimal nacheinander bei vorhandener Runtime. Jeweils neuer Container ueber CLI, eigene Prozessbaumtrennung, 30/60 Sekunden nach Docker-Neustart verifiziert und swift-handler GET 405 (erwarteter Erreichbarkeitstest). Kein authentifizierter Spielauftrag durch diesen Startertest; kein gesamter Start-Test-/Browser-Neustart automatisch durchgefuehrt. Die vorherigen erfolgreichen Spielabgleiche stammen vom manuellen Patch.
 - Aktivierung nach Merge/Pull: bisherigen Webserver beenden, Start-Test.ps1 -Metrics -CompactSnapshot. Auf CPU-Limits-verifiziert warten. Update-Test.ps1 -ReloadEdge bei spaeterem Bundle-Update; manuellen functions-serve-Befehl vermeiden. Keine SQL und keine neue Game-command.
+
+### 2026-10-26 - O1a: Routen-Nachholung effizienter vorbereiten
+
+- Basis e9fdb0160eb1b0ffe941fb8d47aaf5b8cd3ac50d; Branch codex/route-production-cache. Offene PRs bei Beginn: keine.
+- Vorher lokal bestaetigt: neuer Angriff Aster 2 je Flugstrecke 24,321 s, returned, Verteidigersieg, Bericht/traceAvailable vorhanden. Start 399,038 ms, Kampf-Sync 431,379 ms inkl. Resolver 51,886 ms. Keine CPU-Abbrueche oder Retries im geprueften Logfenster. Kein separater Bauauftrag im Logfenster; UI-Replaydarstellung nicht maschinell geprueft.
+- Aenderung: src/engine.js verwendet Produktionswerte innerhalb genau eines advance()-Aufrufs erneut. Invalidierung nach Forschung, Bau/Rueckbau und Bergungs-Callback. Keine Ereignisse ausgelassen; keine Save-/SQL-Aenderung. Browser und vollstaendige Game-command gemeinsam aktualisieren. Bundle 2026-10-26.01.
+- Lokaler eingefrorener 24h-Vergleich aller 14 Spielstaende: Gesamtdauer 10667,25 -> 6038,52 ms (43,4 % weniger), teuerster 6312,82 -> 4088,70 ms. Alle vollstaendigen Ergebnisse exakt gleich. Einzellaeufe unter Node, keine Edge-CPU-/Kapazitaetsmessung; globale Nachholung weiterhin vorhanden. Keine echten Spielerzustandsaenderungen.
+- Automatisch bisher: 67/67 gezielte Energie-/Routen-/Reparatur-/Queue-Tests, 7/7 lokale Server-/CPU-Startertests und Website-Build erfolgreich. Gesamtsuite/Releasechecks/CI folgen vor Uebergabe; historische Archive nur in der lokalen Arbeitskopie auf LF normalisiert, nicht im PR geaendert.
+- Anleitung und News-Entwurf: O1-ROUTEN-NACHHOLUNG.md. Aktivierung nach Merge/Pull mit Update-Test.ps1 -ReloadEdge, dann Strg+F5. Keine SQL; nur lokales Bundle aktivieren. Kein Live-Deploy. Rollback auf 2026-10-25.03, kein Datenrestore.
+- Lokale Abnahme des neuen Bundles noch offen. Naechster Schritt: Route/Runden/Ladung/Pause/Forschung/Ausbau manuell pruefen und HTTP-Metriken vergleichen; danach weitere Nachholkosten oder Spielertrennung angehen.
