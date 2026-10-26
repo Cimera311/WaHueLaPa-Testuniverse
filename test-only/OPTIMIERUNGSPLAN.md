@@ -75,7 +75,7 @@ Statuswerte: **OFFEN**, **IN ARBEIT**, **PR BEREIT**, **LOKAL ABGENOMMEN**, **LI
 |---|---|---|---|---|
 | T0 | Isolierter Testbetrieb und Startwerkzeuge | – | LOKAL ABGENOMMEN | Einrichtungschat / Test-PR #2 |
 | O1 | Messpunkte und reproduzierbare Baseline | T0 | IN ARBEIT | Codex / `codex/o1-command-metrics` / [PR #6](https://github.com/Cimera311/WaHueLaPa-Testuniverse/pull/6); lokale Baseline offen |
-| O1a | Routen-Nachholung: Produktionswerte | O1 | BLOCKIERT | Codex / codex/route-production-cache |
+| O1a | Routen-Nachholung: Produktionswerte | O1 | PR BEREIT | Codex / codex/route-production-cache |
 | O2 | Serverseitiger Wartungsmodus und Restore-Probe | T0 | OFFEN | – |
 | O3 | Snapshot/Payload und Lesezugriffe entlasten | O1 | IN ARBEIT | Codex / `codex/o3-compact-snapshot` / [PR #11](https://github.com/Cimera311/WaHueLaPa-Testuniverse/pull/11) |
 | O4 | Spielerbezogene Commands und atomare Idempotenz | O1, O2; O3 auswerten | OFFEN | – |
@@ -383,3 +383,12 @@ Korrektur ergänzen statt dessen Historie zu überschreiben.
 
 - Unterbrechung: PC-Verbindung am 26.10.2026 waehrend Archiv-/Gesamttest-Aufruf getrennt. Sourcecommit bbbcff88dd1b7ae67b0bd7bf561c211e5dbe2157 ist auf GitHub gesichert. Neuer Bundle-Build vor Unterbrechung erfolgreich (180231 Bytes), aber Bundle-/Releasebytes und Abschluss des letzten Archiv-/Gesamttests noch nicht gesichert. Der erste Gesamtlauf vor Archivierung meldete erwartete Releasechecks wegen noch nicht archiviertem Bundle; keine erfolgreiche Gesamtsuite behauptet. Status BLOCKIERT, PR nur Entwurf; aktuelles Testsystem nicht umgestellt.
 - Fortsetzen: Arbeitsordner C:\Users\Manfred\Documents\ChatGPT\TDM\route-work wieder verbinden. Releasezustand 2026-10-26.01 pruefen; Quelle bbbcff88dd1b7ae67b0bd7bf561c211e5dbe2157 zuordnen. Dashboard und neues TS/TXT/release.json/index.json als eigenen Commit uebernehmen. Historische LF-Archive nicht mitcommitten. Gesamtsuite/Releasechecks/CI abschliessen, dann Draftstatus aufheben und Aktivierung uebergeben. Vergleichsskript einmal im echten Git-Checkout pruefen (isolierte Arbeitskopie hat kein .git).
+
+### 2026-10-26 - O1a: Verbindung wiederhergestellt, Release und Gesamttests abgeschlossen
+
+- Korrektur zum Unterbrechungseintrag: Bundle/Releasearchiv lokal vollstaendig erhalten und jetzt fuer PR #15 uebernommen. Alle fuenf Dashboard-/Archivdateien bytegleich; erneuter Quellbuild mit esbuild 0.25.12 stimmt exakt ueberein.
+- Game-command 2026-10-26.01: Quelle bbbcff88dd1b7ae67b0bd7bf561c211e5dbe2157; SHA256 ee745891fd089970832ed318d402682fd89f7887571f5b026f79f80c503504b0. Historische Archive nicht geaendert.
+- Vollsuite node --test --test-concurrency=2 tests/*.test.js: 535/535 bestanden. node --test test-only/*.test.mjs: 7/7 bestanden. Website-Build erfolgreich. Die zuvor fehlenden Archivchecks sind enthalten und erfolgreich.
+- Reproduzierbares Vergleichswerkzeug in isoliertem echten Git-Checkout erfolgreich: 28 exakte Ergebnisse fuer 14 Spieler bei 1h/24h. Keine DB-Commits. Die vorherigen 43,4 Prozent sind weiterhin eine einzelne Node-Wandzeitmessung, kein CPU-/Lastnachweis.
+- Status BLOCKIERT -> PR BEREIT (nach final gruenen GitHub-Checks). PR https://github.com/Cimera311/WaHueLaPa-Testuniverse/pull/15; Sebastian mergt selbst. Lokale Benutzerabnahme des neuen Bundles und Live-Uebernahme weiterhin offen. Keine SQL erforderlich.
+- Aktivierung nach Merge/Pull: Update-Test.ps1 -ReloadEdge, Browser Strg+F5; bei gestoppter Umgebung Start-Test.ps1 -Metrics -CompactSnapshot. Gezielte Routen-/Ausbau-/Forschungstests danach. Neuer Servercode wurde nicht vorab in die laufende Testinstallation kopiert.

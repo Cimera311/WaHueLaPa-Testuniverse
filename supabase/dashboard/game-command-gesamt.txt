@@ -1,4 +1,5 @@
-// @ts-nocheck - TEST flight factor 0.1 2026-10-25.03; generated from source.
+// @ts-nocheck - production cache 2026-10-26.01; generated from source.
+
 // supabase/functions/game-command/index.ts
 import { createClient } from "npm:@supabase/supabase-js@2.117.2";
 
@@ -676,7 +677,7 @@ function waitingCargo(s) {
     if (!cargoPresent(m.cargo)) parkFleet(s, m, p.id, m.finishTitle || "Flotte entladen");
   }
 }
-function forecastShipJobs(s) {
+function forecastShipJobs(s, readStats = (p) => stats(s, p)) {
   for (const p of s.planets) for (const kind of ["ship", "orbital"]) {
     const j = p[kind + "job"];
     if (!j) continue;
@@ -685,7 +686,7 @@ function forecastShipJobs(s) {
       j.workTotal = j.end - j.start;
       j.workRemaining = Math.max(0, j.end - s.time);
     }
-    const ratio = stats(s, p).ratio;
+    const ratio = readStats(p).ratio;
     j.paused = ratio === 0 && j.workRemaining > 0;
     j.end = s.time + Math.max(1, Math.ceil(j.workRemaining / (ratio || 1)));
     let work = j.workRemaining;
@@ -723,10 +724,10 @@ function nextShipOrder(p) {
 function nextOrbitalOrder(p) {
   p.orbitaljob = (p.orbitalqueue || []).shift() || null;
 }
-function produce(s, ms2) {
+function produce(s, ms2, readStats = (p) => stats(s, p)) {
   for (const p of s.planets) {
     settle(p);
-    const z = stats(s, p);
+    const z = readStats(p);
     produceRepair(p, ms2, z.ratio);
     for (const k of RES) p.resources[k] = Math.min(z.cap, p.resources[k] + z.rates[k] * ms2 / 36e5);
     for (const kind of ["ship", "orbital"]) if (p[kind + "job"]) p[kind + "job"].workRemaining = Math.max(0, p[kind + "job"].workRemaining - ms2 * z.ratio);
@@ -1043,13 +1044,17 @@ function advance(s, now, collectDebris) {
   if (!collectDebris) now = Math.min(now, ...s.missions.filter((m) => m.type === "salvage" && m.phase === "outbound").map((m) => m.due - 1));
   now = Math.max(now, s.time);
   for (const m of s.missions) if (m.type === "route") routeStats(s, m);
+  const production = /* @__PURE__ */ new Map(), readStats = (p) => {
+    if (!production.has(p)) production.set(p, stats(s, p));
+    return production.get(p);
+  };
   waitingCargo(s);
   let guard = 0;
   while (true) {
-    forecastShipJobs(s);
+    forecastShipJobs(s, readStats);
     const times = [];
     for (const p of s.planets) {
-      times.push(forecastRepair(p, s.time, stats(s, p).ratio));
+      times.push(forecastRepair(p, s.time, readStats(p).ratio));
       if (p.build) times.push(p.build.end);
       for (const kind of ["ship", "orbital"]) if (p[kind + "job"] && !p[kind + "job"].paused) times.push(p[kind + "job"].workRemaining === 0 ? s.time : p[kind + "job"].end);
     }
@@ -1064,12 +1069,13 @@ function advance(s, now, collectDebris) {
       }
       guard = 0;
     }
-    produce(s, Math.max(0, next - s.time));
+    produce(s, Math.max(0, next - s.time), readStats);
     s.time = Math.max(s.time, next);
     if (s.research && s.research.end <= s.time) {
       const j = s.research;
       s.tech[j.key] = j.level;
       s.research = null;
+      production.clear();
       report(s, "Forschung abgeschlossen", `${TECHS[j.key].name} erreicht Stufe ${j.level}.`);
     }
     for (const p of s.planets) {
@@ -1078,6 +1084,7 @@ function advance(s, now, collectDebris) {
         const j = p.build;
         p.buildings[j.key] = j.level;
         p.build = null;
+        production.delete(p);
         if (j.kind === "demolish") {
           const cap = capacity(p);
           for (const k of RES) {
@@ -1118,6 +1125,7 @@ function advance(s, now, collectDebris) {
       } else if (m.type === "salvage" && m.phase === "outbound") {
         if (!collectDebris) throw Error("Tr\xFCmmerbergung ben\xF6tigt den Spielserver.");
         collectDebris(s, m);
+        production.clear();
         m.phase = "return";
         m.due = s.time + m.duration;
         report(s, "Tr\xFCmmer geborgen", `${getPlanet(s, m.to).name}: ${Math.floor(m.cargo.metal)} Metall und ${Math.floor(m.cargo.crystal)} Kristall auf dem R\xFCckweg.`);
@@ -1153,12 +1161,12 @@ function advance(s, now, collectDebris) {
     }
     waitingCargo(s);
   }
-  produce(s, now - s.time);
+  produce(s, now - s.time, readStats);
   s.time = now;
   waitingCargo(s);
   for (const m of s.missions) if (m.paused || m.awaitingUnload) m.due = now;
-  forecastShipJobs(s);
-  for (const p of s.planets) forecastRepair(p, s.time, stats(s, p).ratio);
+  forecastShipJobs(s, readStats);
+  for (const p of s.planets) forecastRepair(p, s.time, readStats(p).ratio);
   return s;
 }
 function act(s, action, now = Date.now()) {

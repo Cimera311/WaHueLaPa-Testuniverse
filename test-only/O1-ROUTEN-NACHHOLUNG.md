@@ -1,12 +1,7 @@
 # Routen-Nachholung: Produktionswerte wiederverwenden
 
-TEST ONLY · Entwurf am 26.10.2026. Keine Live-Aktivierung.
+TEST ONLY · automatisch geprueft am 26.10.2026. Lokale Benutzerabnahme noch offen. Keine Live-Aktivierung.
 
-**BLOCKIERT durch getrennte PC-Verbindung:** Quellcode und gezielte Tests sind gesichert.
-Das lokal gebaute Bundle/Releasearchiv 2026-10-26.01 konnte vor dem Verbindungsabbruch
-nicht in den Branch uebernommen werden; der letzte Gesamttest ist nicht bestaetigt.
-Diesen PR noch nicht aktivieren. Die untenstehende Aktivierung gilt erst nach
-vollstaendiger Archivierung und finalen Checks.
 
 ## Änderung
 
@@ -28,7 +23,7 @@ Nach Forschung wird der gesamte Cache verworfen, nach Ausbau/Rueckbau der betrof
 2. powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\test-only\Update-Test.ps1 -ReloadEdge
 3. Browser Strg+F5. Wenn Umgebung gestoppt: Start-Test.ps1 -Metrics -CompactSnapshot.
 
-Vollstaendige Game-command 2026-10-26.01 muss vor Freigabe als TS/TXT im Releasearchiv und im Dashboard ergaenzt werden. Das lokale Update kopiert das ganze Bundle nach swift-handler/index.ts; vorhandene Auth-Einstellungen bleiben erhalten. **Keine SQL erforderlich. Kein Cloud-Deploy fuer diesen Test.** Fuer eine spaetere Live-Uebernahme ist ein separater PR noetig; Test-Flugfaktor 0,1 nicht mitnehmen.
+Vollstaendige Game-command 2026-10-26.01 liegt als TS/TXT im Releasearchiv und im Dashboard. Das lokale Update kopiert das ganze Bundle nach swift-handler/index.ts; vorhandene Auth-Einstellungen bleiben erhalten. **Keine SQL erforderlich. Kein Cloud-Deploy fuer diesen Test.** Fuer eine spaetere Live-Uebernahme ist ein separater PR noetig; Test-Flugfaktor 0,1 nicht mitnehmen.
 
 Manuell nach Aktivierung: laufende Route, Rundenstatistik, Ressourcen, Pause/Fortsetzen und Neuladen pruefen; danach Ausbau/Forschung waehrend laufender Route. Die lokale Benutzerabnahme dieses neuen Bundles steht noch aus.
 
@@ -37,3 +32,12 @@ Rollback: vorheriges Bundle 2026-10-25.03 komplett lokal zurueckkopieren und Run
 ## News-Entwurf
 
 ⚙️ Handelsrouten werden im Testsystem effizienter nachberechnet. Unveraenderte Produktionswerte werden waehrend der Nachholung wiederverwendet; bei Forschung und Gebaeudeaenderungen werden sie neu berechnet. Ladung, Treibstoffkosten und Flugzeiten bleiben gleich. Noch nicht live veroeffentlicht.
+
+## Abschluss der automatischen Pruefung
+
+- 535/535 Spieltests, 7/7 lokale Server-/CPU-Startertests und Website-Build erfolgreich.
+- Alle fuenf TS/TXT-Dateien bytegleich; erneuter esbuild-Quellbuild exakt gleich.
+- Quellcommit: bbbcff88dd1b7ae67b0bd7bf561c211e5dbe2157.
+- SHA256: ee745891fd089970832ed318d402682fd89f7887571f5b026f79f80c503504b0.
+- Vergleichswerkzeug im echten Git-Checkout erfolgreich: 14 Spieler x 1h/24h = 28 exakt gleiche Ergebnisse, keine DB-Commits.
+- Finale GitHub-Checks siehe PR #15. Keine echte Spielaktion mit dem neuen Bundle ausgefuehrt; Testinstallation erst nach Merge aktualisieren.

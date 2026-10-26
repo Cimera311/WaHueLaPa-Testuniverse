@@ -1,6 +1,6 @@
 {
   "format": 1,
-  "latest": "2026-10-25.03",
+  "latest": "2026-10-26.01",
   "releases": [
     {
       "version": "2026-10-09.01",
@@ -260,6 +260,13 @@
       "sourceCommit": "9962391211c01dbb80a5f41d5913beb92e3bafb2",
       "description": "TEST ONLY: Galaxie-/PvP-Flugzeitfaktor 0.1 fuer Aster-2-Abnahmetest",
       "sha256": "e6db8a24f69fac0e16e035212a8038d67175ea610e8f935beedeac61091a6ba1"
+    },
+    {
+      "version": "2026-10-26.01",
+      "createdAt": "2026-10-26T19:21:54.110Z",
+      "sourceCommit": "bbbcff88dd1b7ae67b0bd7bf561c211e5dbe2157",
+      "description": "O1a: Produktionswerte innerhalb der Routen-Nachholung wiederverwenden",
+      "sha256": "ee745891fd089970832ed318d402682fd89f7887571f5b026f79f80c503504b0"
     }
   ]
 }
