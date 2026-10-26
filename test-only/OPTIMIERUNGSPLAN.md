@@ -75,7 +75,7 @@ Statuswerte: **OFFEN**, **IN ARBEIT**, **PR BEREIT**, **LOKAL ABGENOMMEN**, **LI
 |---|---|---|---|---|
 | T0 | Isolierter Testbetrieb und Startwerkzeuge | – | LOKAL ABGENOMMEN | Einrichtungschat / Test-PR #2 |
 | O1 | Messpunkte und reproduzierbare Baseline | T0 | IN ARBEIT | Codex / `codex/o1-command-metrics` / [PR #6](https://github.com/Cimera311/WaHueLaPa-Testuniverse/pull/6); lokale Baseline offen |
-| O1a | Routen-Nachholung: Produktionswerte | O1 | IN ARBEIT | Codex / codex/route-production-cache |
+| O1a | Routen-Nachholung: Produktionswerte | O1 | BLOCKIERT | Codex / codex/route-production-cache |
 | O2 | Serverseitiger Wartungsmodus und Restore-Probe | T0 | OFFEN | – |
 | O3 | Snapshot/Payload und Lesezugriffe entlasten | O1 | IN ARBEIT | Codex / `codex/o3-compact-snapshot` / [PR #11](https://github.com/Cimera311/WaHueLaPa-Testuniverse/pull/11) |
 | O4 | Spielerbezogene Commands und atomare Idempotenz | O1, O2; O3 auswerten | OFFEN | – |
@@ -380,3 +380,6 @@ Korrektur ergänzen statt dessen Historie zu überschreiben.
 - Automatisch bisher: 67/67 gezielte Energie-/Routen-/Reparatur-/Queue-Tests, 7/7 lokale Server-/CPU-Startertests und Website-Build erfolgreich. Gesamtsuite/Releasechecks/CI folgen vor Uebergabe; historische Archive nur in der lokalen Arbeitskopie auf LF normalisiert, nicht im PR geaendert.
 - Anleitung und News-Entwurf: O1-ROUTEN-NACHHOLUNG.md. Aktivierung nach Merge/Pull mit Update-Test.ps1 -ReloadEdge, dann Strg+F5. Keine SQL; nur lokales Bundle aktivieren. Kein Live-Deploy. Rollback auf 2026-10-25.03, kein Datenrestore.
 - Lokale Abnahme des neuen Bundles noch offen. Naechster Schritt: Route/Runden/Ladung/Pause/Forschung/Ausbau manuell pruefen und HTTP-Metriken vergleichen; danach weitere Nachholkosten oder Spielertrennung angehen.
+
+- Unterbrechung: PC-Verbindung am 26.10.2026 waehrend Archiv-/Gesamttest-Aufruf getrennt. Sourcecommit bbbcff88dd1b7ae67b0bd7bf561c211e5dbe2157 ist auf GitHub gesichert. Neuer Bundle-Build vor Unterbrechung erfolgreich (180231 Bytes), aber Bundle-/Releasebytes und Abschluss des letzten Archiv-/Gesamttests noch nicht gesichert. Der erste Gesamtlauf vor Archivierung meldete erwartete Releasechecks wegen noch nicht archiviertem Bundle; keine erfolgreiche Gesamtsuite behauptet. Status BLOCKIERT, PR nur Entwurf; aktuelles Testsystem nicht umgestellt.
+- Fortsetzen: Arbeitsordner C:\Users\Manfred\Documents\ChatGPT\TDM\route-work wieder verbinden. Releasezustand 2026-10-26.01 pruefen; Quelle bbbcff88dd1b7ae67b0bd7bf561c211e5dbe2157 zuordnen. Dashboard und neues TS/TXT/release.json/index.json als eigenen Commit uebernehmen. Historische LF-Archive nicht mitcommitten. Gesamtsuite/Releasechecks/CI abschliessen, dann Draftstatus aufheben und Aktivierung uebergeben. Vergleichsskript einmal im echten Git-Checkout pruefen (isolierte Arbeitskopie hat kein .git).
