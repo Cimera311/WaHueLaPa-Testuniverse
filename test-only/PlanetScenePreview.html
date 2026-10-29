@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>WaHueLaPa Universe · Lebendiger Gesteinsplanet</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:#070b14;color:#e9eff8}
+.app{width:min(1120px,100%);margin:auto;padding:16px 12px 23px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:13px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;letter-spacing:.14em;font-size:11px;font-weight:800;color:#e8f4ff}.mark{width:31px;height:31px;border:1px solid #65b4cf8a;border-radius:8px;display:grid;place-items:center;background:linear-gradient(140deg,#1d4053,#0b1829);box-shadow:0 0 20px #36b2e721;color:#9de4ed;font-weight:900}.minor{letter-spacing:.1em;color:#8ba5bb;font-size:10px;font-weight:600}.righthead{display:flex;align-items:center;gap:9px}.live{display:flex;align-items:center;gap:6px;color:#a6cdbf;font-size:10px;letter-spacing:.1em}.live:before{content:"";width:6px;height:6px;background:#52d5b2;box-shadow:0 0 10px #52d5b2;border-radius:50%}
+.frame{background:#111b2a;border:1px solid #355069;border-radius:15px;overflow:hidden;box-shadow:0 18px 60px #0007;position:relative}
+.scene{position:relative;height:auto;aspect-ratio:1200/575;overflow:hidden;background:#111d2c;isolation:isolate}
+.scene svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.scene svg .dust-far{transform-origin:center;animation:dust-drift var(--drift,52s) ease-in-out infinite alternate}
+.scene svg .dust-near{transform-origin:center;animation:dust-drift-rev var(--drift,52s) ease-in-out infinite alternate}
+.scene svg .mist{animation:mist-drift var(--drift,52s) ease-in-out infinite alternate}
+.scene svg .beam{animation:beam-pulse 5.5s ease-in-out infinite}
+.scene svg .lamp{animation:lamp-pulse 3.6s ease-in-out infinite alternate}
+.scene svg .lamp:nth-of-type(3n){animation-delay:-2.1s}.scene svg .lamp:nth-of-type(4n){animation-delay:-1.3s}
+.scene svg .ship-fly{animation:ship-fly var(--ship,39s) linear infinite;transform-box:fill-box;transform-origin:center}
+.scene svg .smoke-a{animation:smoke-rise 11s ease-in-out infinite}.scene svg .smoke-b{animation:smoke-rise 13s ease-in-out -5s infinite}
+.scene{--drift:52s;--ship:39s}
+.scene[data-mode=full]{--drift:27s;--ship:19s}
+.scene[data-mode=off] *{animation-play-state:paused!important}
+.scene[data-mode=off] .smoke-a,.scene[data-mode=off] .smoke-b,.scene[data-mode=off] .ship-fly{opacity:0!important}
+.level-1,.level-2{transition:opacity .8s ease}
+.scene[data-stage="0"] .level-1,.scene[data-stage="0"] .level-2,.scene[data-stage="1"] .level-2{opacity:0;pointer-events:none}
+.scene[data-stage="1"] .level-1,.scene[data-stage="2"] .level-1,.scene[data-stage="2"] .level-2{opacity:1}
+.scene[data-mode="off"] .transient{opacity:0!important}
+.caption-overlay{position:absolute;top:17px;left:20px;pointer-events:none;text-shadow:0 2px 9px #05101d}.eyebrow{font-size:10px;letter-spacing:.19em;color:#bad3df;font-weight:800}.planetname{font-family:Georgia,serif;font-size:clamp(22px,3.8vw,43px);letter-spacing:.025em;line-height:1.15;margin:4px 0 5px;font-weight:500}.subtitle{font-size:11px;color:#c3d5de;letter-spacing:.06em}
+.hud-bottom{position:absolute;bottom:0;left:0;right:0;padding:26px 20px 14px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;background:linear-gradient(transparent,#06111fd9)}
+.hud-left{display:flex;gap:14px}.hud-item{display:flex;flex-direction:column;gap:3px}.hud-item b{font-size:12px;font-weight:650;color:#e6f2f8}.hud-item small{font-size:9px;color:#91aebf;letter-spacing:.06em}.tag{color:#a7d4df;font-size:9px;letter-spacing:.1em;border:1px solid #7dbad777;background:#092739a6;padding:7px 9px;border-radius:5px;white-space:nowrap}
+.controls{padding:15px 17px;background:linear-gradient(180deg,#101d2d,#0b1422);border-top:1px solid #3e5568;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.group{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.group-title{font-size:10px;letter-spacing:.09em;color:#98afc1;font-weight:700;margin-right:2px}.buttons{display:flex;align-items:center;gap:5px;padding:3px;background:#07111e;border:1px solid #31465e;border-radius:8px}.buttons button{font:inherit;font-size:11px;color:#98acbc;border:0;border-radius:5px;background:transparent;padding:8px 11px;white-space:nowrap;cursor:pointer;transition:background .15s,color .15s}.buttons button:hover{color:#fff;background:#1a3146}.buttons button[aria-pressed=true]{color:#e9f9ff;background:#23516b;box-shadow:inset 0 0 0 1px #4385a4}
+.bottom-panel{margin-top:12px;display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:9px}.panel{border:1px solid #293b50;background:#111c2d;border-radius:8px;padding:12px 14px;min-width:0}.panel-label{font-size:10px;letter-spacing:.1em;color:#96acbf;margin-bottom:5px}.panel-main{font-size:13px;color:#e2edf5;line-height:1.35}.panel small{color:#8ba4b6;font-size:10px;line-height:1.5}.accent{color:#7cdac7}.disclaimer{font-size:10px;color:#71869a;margin:14px 1px 0;line-height:1.5}
+@keyframes dust-drift{0%{transform:translateX(-20px)}100%{transform:translateX(38px)}}
+@keyframes dust-drift-rev{0%{transform:translateX(24px)}100%{transform:translateX(-32px)}}
+@keyframes mist-drift{0%{transform:translate(-25px,0);opacity:.5}100%{transform:translate(32px,-7px);opacity:.85}}
+@keyframes beam-pulse{0%,100%{opacity:.27}50%{opacity:.62}}
+@keyframes lamp-pulse{0%,100%{opacity:.5}55%{opacity:1}70%{opacity:.75}}
+@keyframes ship-fly{0%,10%{transform:translate(-160px,48px);opacity:0}14%{opacity:.85}64%{opacity:.8}76%{opacity:0}100%{transform:translate(1190px,-103px);opacity:0}}
+@keyframes smoke-rise{0%{transform:translate(0,10px);opacity:0}20%{opacity:.42}75%{opacity:.25}100%{transform:translate(28px,-85px);opacity:0}}
+@media(max-width:680px){.app{padding:9px 7px 19px}.top{margin-bottom:9px}.minor{display:none}.frame{border-radius:10px}.scene{aspect-ratio:1200/780}.scene svg{width:100%;height:100%;object-fit:cover}.caption-overlay{top:13px;left:13px}.eyebrow{font-size:8px}.planetname{font-size:26px}.subtitle{font-size:9px}.hud-bottom{padding:22px 12px 10px}.hud-left{gap:10px}.hud-item b{font-size:10px}.hud-item small{font-size:8px}.tag{display:none}.controls{padding:12px;gap:12px}.group{width:100%;justify-content:space-between}.bottom-panel{grid-template-columns:1fr 1fr}.panel:first-child{grid-column:1/-1}.panel{padding:10px}.panel-main{font-size:12px}.buttons button{padding:7px 9px}}
+@media(prefers-reduced-motion:reduce){.scene *{animation:none!important;transition:none!important}.scene .ship-fly,.scene .smoke-a,.scene .smoke-b{opacity:0!important}}
+</style>
+</head>
+<body>
+<div class="app">
+ <header class="top"><div class="brand"><div class="mark">W</div><div><div>WAHUELAPA UNIVERSE</div><div class="minor" style="margin-top:4px">PLANETENANSICHT / ANIMATIONSSTUDIE</div></div></div><div class="righthead"><span class="live">INTERAKTIVE VORSCHAU</span><span style="color:#607e91">◆</span><span class="minor">PROTOTYP 01</span></div></header>
+ <div class="frame">
+  <div class="scene" id="scene" data-stage="1" data-mode="subtle">
+   <svg viewBox="0 0 1200 575" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Stilisierte felsige Planetenoberfläche mit Bergketten, Nebelschichten, industriellen Gebäuden und animierten Lichtern">
+    <defs>
+     <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#091726"/><stop offset=".43" stop-color="#284154"/><stop offset=".73" stop-color="#77515a"/><stop offset="1" stop-color="#c07c5b"/></linearGradient>
+     <radialGradient id="horizon"><stop stop-color="#f0a477" stop-opacity=".67"/><stop offset=".47" stop-color="#d46e66" stop-opacity=".23"/><stop offset="1" stop-color="#ad696e" stop-opacity="0"/></radialGradient>
+     <linearGradient id="mountain1" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#43505a"/><stop offset="1" stop-color="#1e3446"/></linearGradient>
+     <linearGradient id="mountain2" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#2f3e4c"/><stop offset="1" stop-color="#1b2939"/></linearGradient>
+     <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#38444b"/><stop offset="1" stop-color="#111f2c"/></linearGradient>
+     <linearGradient id="fog" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#c18e7b" stop-opacity="0"/><stop offset=".49" stop-color="#d69d87" stop-opacity=".2"/><stop offset="1" stop-color="#d69d87" stop-opacity="0"/></linearGradient>
+     <linearGradient id="tower" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#152a39"/><stop offset=".47" stop-color="#4b5660"/><stop offset="1" stop-color="#192c3a"/></linearGradient>
+     <linearGradient id="screenlight" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#97e9db"/><stop offset="1" stop-color="#2a667d"/></linearGradient>
+     <radialGradient id="lightsource"><stop stop-color="#a3f9ee" stop-opacity=".95"/><stop offset=".24" stop-color="#70dad7" stop-opacity=".4"/><stop offset="1" stop-color="#66d9cf" stop-opacity="0"/></radialGradient>
+     <radialGradient id="dustring"><stop stop-color="#d39d8b" stop-opacity=".33"/><stop offset="1" stop-color="#ab7e80" stop-opacity="0"/></radialGradient>
+     <filter id="blur24"><feGaussianBlur stdDeviation="24"/></filter>
+     <filter id="blur8"><feGaussianBlur stdDeviation="8"/></filter>
+     <pattern id="grid" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M16 0H0V16" fill="none" stroke="#a7b5bd" stroke-opacity=".08" stroke-width="1"/></pattern>
+    </defs>
+    <!-- SKY / STARS -->
+    <rect width="1200" height="575" fill="url(#sky)"/>
+    <ellipse cx="810" cy="328" rx="475" ry="245" fill="url(#horizon)"/>
+    <g fill="#d1e4f5" opacity=".56"><circle cx="109" cy="67" r="1.2"/><circle cx="205" cy="94" r=".7"/><circle cx="353" cy="52" r="1.1"/><circle cx="488" cy="90" r=".7"/><circle cx="712" cy="57" r=".8"/><circle cx="825" cy="109" r="1"/><circle cx="978" cy="64" r=".9"/><circle cx="1124" cy="88" r="1.3"/><circle cx="1035" cy="139" r=".6"/><circle cx="623" cy="116" r=".9"/></g>
+    <circle cx="988" cy="120" r="62" fill="#a7b1bc" opacity=".18"/><circle cx="988" cy="120" r="58" fill="#879aa8" opacity=".2"/><path d="M961 75 C987 90 1003 91 1035 102 M944 139 L1011 148 L1032 164" stroke="#cfdee5" stroke-opacity=".1" stroke-width="9" fill="none"/>
+    <!-- HIGH CLOUDS -->
+    <g class="dust-far" opacity=".37"><ellipse cx="335" cy="189" rx="308" ry="31" fill="#b98e87" filter="url(#blur24)"/><ellipse cx="1007" cy="245" rx="280" ry="28" fill="#dc988e" filter="url(#blur24)"/></g>
+    <!-- MOUNTAINS -->
+    <path d="M0 354 L83 311 144 338 210 270 292 335 378 248 458 318 535 274 626 338 705 264 803 341 909 239 1014 314 1086 264 1200 331 1200 575 0 575Z" fill="url(#mountain1)"/>
+    <path d="M195 294 L210 270 226 299 M363 273 L378 248 392 268 M895 264 L909 239 931 273" stroke="#b8a2a3" stroke-width="3" opacity=".34" fill="none"/>
+    <path d="M0 398 L80 351 184 383 268 312 359 367 445 327 553 393 669 326 784 390 888 311 1009 363 1112 324 1200 366 1200 575 0 575Z" fill="url(#mountain2)"/>
+    <path d="M0 412 Q210 396 418 403 T825 389 T1200 411" fill="none" stroke="#d18e80" stroke-opacity=".13" stroke-width="14"/>
+    <!-- VALLEY INDUSTRIAL GRID / DISTANT SETTLEMENT -->
+    <g opacity=".62"><path d="M0 432 Q260 390 410 423 T800 419 T1200 406 L1200 575 0 575Z" fill="#192a37"/>
+     <path d="M0 475 L134 448 222 471 364 440 452 465 614 442 735 464 863 440 980 467 1095 427 1200 456" fill="none" stroke="#c58a73" stroke-opacity=".23" stroke-width="3"/></g>
+    <!-- STAGE 2 DISTANT CITY -->
+    <g class="level-2" fill="#172c3b"><path d="M75 414 V376 H104 V399 H119 V364 H145 V416 H160 V384 H181 V419Z"/><path d="M875 391 V347 H901 V367 H915 V335 H940 V382 H955 V352 H979 V394Z"/>
+     <path d="M132 368 L132 344 M925 338 L925 317" stroke="#243e4d" stroke-width="4"/>
+     <g fill="#c8dba2" opacity=".75"><path d="M91 383h3v5h-3z M128 380h3v5h-3z M142 402h3v5h-3z M896 361h3v5h-3z M932 347h3v5h-3z"/></g>
+    </g>
+    <!-- TERRAINS -->
+    <path d="M0 475 L85 451 162 473 271 442 360 472 449 455 548 482 652 452 748 471 843 451 939 473 1031 434 1122 462 1200 442 V575 H0Z" fill="url(#ground)"/>
+    <path d="M0 492 L136 477 248 491 358 476 496 507 643 478 738 493 861 473 983 501 1119 477 1200 489" fill="none" stroke="#856f69" stroke-width="3" opacity=".22"/>
+    <g stroke="#708593" opacity=".21" fill="none"><path d="M8 533L127 507 162 522 252 508 M742 532L823 505 898 522 1010 498 M366 558L476 523 565 540"/><path d="M98 506L137 510 M1022 515L1101 502"/></g>
+    <!-- INDUSTRIAL STRUCTURES BASIC -->
+    <g>
+     <!-- left mine -->
+     <path d="M183 464 L183 395 233 395 233 458" fill="#172d3a" stroke="#405565" stroke-width="3"/>
+     <path d="M174 395 L241 395 229 386 186 386Z" fill="#6b7576"/><path d="M195 386V348H223V386" fill="url(#tower)" stroke="#4c6370" stroke-width="2"/>
+     <path d="M184 414H235 M194 430H222 M195 348L212 335 223 348" fill="none" stroke="#72828b" stroke-width="2"/>
+     <rect x="202" y="360" width="11" height="19" rx="2" fill="#468e9c" opacity=".64"/>
+     <path d="M225 420 L302 438 298 449 225 436Z" fill="#263b44" stroke="#536974" stroke-width="2"/>
+     <path d="M242 425 L286 435" stroke="#8f9f8f" stroke-dasharray="6 4" opacity=".6"/>
+     <!-- central settlement -->
+     <path d="M375 459V404H421V460" fill="url(#tower)" stroke="#65727b" stroke-width="2"/>
+     <path d="M367 405L398 380 430 405Z" fill="#546676" stroke="#8ba1a8" stroke-width="2"/>
+     <path d="M438 464V421H491V466" fill="#1d3745" stroke="#667b84" stroke-width="2"/>
+     <path d="M450 418Q464 385 480 418" fill="#476575" stroke="#839da3" stroke-width="2"/>
+     <rect x="387" y="426" width="8" height="13" fill="url(#screenlight)" opacity=".72"/>
+     <rect x="404" y="426" width="8" height="13" fill="url(#screenlight)" opacity=".52"/>
+     <rect x="452" y="435" width="24" height="7" fill="#408d99"/>
+     <!-- tall reactor -->
+     <path d="M679 464V368H747V469" fill="url(#tower)" stroke="#6b7581" stroke-width="3"/>
+     <path d="M674 367L693 353H737L754 367Z" fill="#465968" stroke="#8795a0" stroke-width="2"/>
+     <path d="M712 354V321" stroke="#7b929c" stroke-width="5"/><ellipse cx="712" cy="319" rx="22" ry="7" fill="#568b94" stroke="#9ac9bf" stroke-width="2"/>
+     <path d="M692 393H734 M692 415H734 M692 438H734" stroke="#738791" stroke-width="3"/>
+     <rect x="698" y="382" width="28" height="6" rx="2" fill="#4e9bac"/><rect x="701" y="401" width="21" height="6" fill="#4e9bac"/>
+     <path d="M746 431L801 413 807 463" fill="none" stroke="#577484" stroke-width="7"/>
+     <!-- right excavation tower -->
+     <path d="M962 446V330H1039V459" fill="url(#tower)" stroke="#687986" stroke-width="3"/>
+     <path d="M948 330H1053L1040 318H963Z" fill="#6c7a80" stroke="#a1a7a0" stroke-width="2"/>
+     <path d="M979 318V295H1022V318" fill="#273e4f" stroke="#6d8592" stroke-width="3"/>
+     <path d="M999 295V255" stroke="#748a95" stroke-width="5"/><path d="M978 278H1020" stroke="#8d9ba3" stroke-width="5"/>
+     <path d="M965 357H1037 M965 386H1037 M965 420H1037" stroke="#738794" stroke-width="3"/>
+     <path d="M976 343L1024 405 M1024 342L974 406" stroke="#7c8b91" stroke-width="3" opacity=".75"/>
+     <path d="M1044 364L1090 387 1090 439" stroke="#7c7d7c" stroke-width="8" fill="none"/>
+     <!-- ground pipe lines -->
+     <path d="M233 461H372 M490 472H674 M750 467H963" stroke="#57707b" stroke-width="7"/>
+     <path d="M233 459H372 M490 470H674 M750 465H963" stroke="#aac1ae" stroke-width="2" opacity=".47"/>
+    </g>
+    <!-- STAGE 1 NEW INDUSTRY -->
+    <g class="level-1">
+     <path d="M507 466V414H572V469" fill="#1b3445" stroke="#667f89" stroke-width="2.3"/>
+     <path d="M504 414H575L564 399H515Z" fill="#546c75" stroke="#8f9c9e" stroke-width="2"/>
+     <path d="M521 399V375H548V399" fill="#2a4956" stroke="#78929a" stroke-width="2"/>
+     <path d="M528 374V350 M541 374V357" stroke="#82939a" stroke-width="4"/>
+     <rect x="518" y="429" width="43" height="7" fill="#498c99"/><rect x="529" y="444" width="22" height="6" fill="#4cb9bd"/>
+     <path d="M799 468V427H850V468" fill="#253b48" stroke="#71818b" stroke-width="2"/>
+     <path d="M791 427H858L849 414H800Z" fill="#435a64" stroke="#7f9ba3" stroke-width="2"/>
+     <path d="M811 413V392H840V414" fill="#1d3644" stroke="#718a95" stroke-width="2"/>
+     <rect x="810" y="442" width="27" height="7" fill="#4fb0bd"/>
+     <!-- Stage 1 glowing settlement -->
+     <g class="lamp"><circle cx="532" cy="439" r="31" fill="url(#lightsource)"/><circle cx="532" cy="439" r="2.8" fill="#b5fff0"/></g>
+     <g class="lamp"><circle cx="817" cy="446" r="27" fill="url(#lightsource)"/><circle cx="817" cy="446" r="2.5" fill="#a3fff0"/></g>
+    </g>
+    <!-- STAGE 2 EXTRA TOWERS AND NETWORK -->
+    <g class="level-2">
+     <path d="M1107 450V353H1154V448" fill="#213d4b" stroke="#76909a" stroke-width="2"/>
+     <path d="M1099 352H1162L1155 341H1107Z" fill="#677b7c"/>
+     <path d="M1129 341V294 M1115 311H1144" stroke="#8ea7a7" stroke-width="4"/>
+     <path d="M1110 375H1150 M1110 395H1150 M1110 418H1150" stroke="#8398a0" stroke-width="2"/>
+     <rect x="1119" y="364" width="22" height="5" fill="#83dcce"/>
+     <path d="M313 461V417H350V460" fill="#273e48" stroke="#728a96" stroke-width="2"/>
+     <path d="M305 417H359L349 406H315Z" fill="#536975"/>
+     <rect x="319" y="429" width="21" height="6" fill="#7bdcd0"/>
+     <g class="lamp"><circle cx="1129" cy="365" r="46" fill="url(#lightsource)"/><circle cx="1129" cy="365" r="3" fill="#b6fff0"/></g>
+     <g class="lamp"><circle cx="324" cy="433" r="29" fill="url(#lightsource)"/><circle cx="324" cy="433" r="3" fill="#b6fff0"/></g>
+     <path class="beam" d="M713 317L713 168" stroke="#7af4e1" stroke-width="4" stroke-opacity=".28"/><ellipse class="beam" cx="713" cy="290" rx="43" ry="9" fill="none" stroke="#9af5db" stroke-width="2" opacity=".35"/>
+    </g>
+    <!-- BASIC LIGHTS -->
+    <g class="lamp"><circle cx="207" cy="369" r="36" fill="url(#lightsource)"/><circle cx="207" cy="369" r="2.7" fill="#b4ffed"/></g>
+    <g class="lamp"><circle cx="712" cy="319" r="64" fill="url(#lightsource)"/><circle cx="712" cy="319" r="4.5" fill="#b4fff1"/></g>
+    <g class="lamp"><circle cx="995" cy="280" r="48" fill="url(#lightsource)"/><circle cx="995" cy="280" r="3" fill="#b4ffee"/></g>
+    <g class="lamp"><circle cx="459" cy="437" r="26" fill="url(#lightsource)"/><circle cx="459" cy="437" r="2.2" fill="#b4ffee"/></g>
+    <!-- STEAM / WEATHER -->
+    <g class="level-1 transient"><g class="smoke-a"><ellipse cx="530" cy="348" rx="21" ry="31" fill="#aeb2b2" opacity=".26" filter="url(#blur8)"/></g><g class="smoke-b"><ellipse cx="548" cy="349" rx="15" ry="24" fill="#dfb7ad" opacity=".3" filter="url(#blur8)"/></g></g>
+    <g class="dust-near"><ellipse cx="280" cy="456" rx="340" ry="58" fill="url(#dustring)"/><ellipse cx="1010" cy="469" rx="320" ry="60" fill="url(#dustring)"/></g>
+    <g class="mist"><rect x="-90" y="444" width="1380" height="33" fill="url(#fog)" filter="url(#blur8)"/></g>
+    <!-- SHUTTLE - STAGE 1+ -->
+    <g class="level-1 transient"><g class="ship-fly" opacity="0">
+     <path d="M80 234L117 227 140 235 116 243Z" fill="#b1d2de" stroke="#4a8095" stroke-width="1.5"/>
+     <path d="M111 227L95 214 126 225Z" fill="#58899c"/>
+     <path d="M113 243L101 255 129 240Z" fill="#4c748d"/>
+     <path d="M137 235L171 231 170 239Z" fill="#69d9f0" opacity=".45" filter="url(#blur8)"/>
+     <path d="M78 231L57 233 78 238Z" fill="#8ce4e8" opacity=".63"/>
+     <circle cx="113" cy="233" r="3" fill="#a3fff1"/>
+    </g></g>
+    <!-- FOREGROUND VIGNETTE -->
+    <rect x="0" y="0" width="1200" height="575" fill="none" stroke="#040a16" stroke-width="28" stroke-opacity=".24"/>
+   </svg>
+   <div class="caption-overlay"><div class="eyebrow">GESTEINSPLANET • INDUSTRIEWELT</div><div class="planetname">Ferrum</div><div class="subtitle">Sektor 04 · Atmosphärische Oberfläche</div></div>
+   <div class="hud-bottom"><div class="hud-left"><div class="hud-item"><small>METALLMINE</small><b id="metal">Stufe 12</b></div><div class="hud-item"><small>KRISTALLMINE</small><b id="crystal">Stufe 8</b></div><div class="hud-item"><small>WERFT</small><b id="shipyard">Stufe 3</b></div></div><div class="tag">2D · CSS LAYERS · NO WEBGL</div></div>
+  </div>
+  <div class="controls">
+   <div class="group"><span class="group-title">AUSBAUSTUFE</span><div class="buttons" role="group" aria-label="Ausbaustufe"><button type="button" data-stage-btn="0" aria-pressed="false">Früh</button><button type="button" data-stage-btn="1" aria-pressed="true">Mittel</button><button type="button" data-stage-btn="2" aria-pressed="false">Hoch</button></div></div>
+   <div class="group"><span class="group-title">ANIMATION</span><div class="buttons" role="group" aria-label="Animationsmodus"><button type="button" data-mode-btn="off" aria-pressed="false">Aus</button><button type="button" data-mode-btn="subtle" aria-pressed="true">Dezent</button><button type="button" data-mode-btn="full" aria-pressed="false">Voll</button></div></div>
+  </div>
+ </div>
+ <div class="bottom-panel"><div class="panel"><div class="panel-label">VISUELLE ENTWICKLUNG</div><div class="panel-main" id="stage-name">Mittlere Kolonie</div><small id="stage-detail">Zusätzliche Fördergebäude, aktive Lichtpunkte, gelegentlicher Transportflug.</small></div><div class="panel"><div class="panel-label">DARSTELLUNG</div><div class="panel-main"><span class="accent">●</span> <span id="mode-name">Dezent animiert</span></div><small>Clientseitig · keine Datenbankabfragen</small></div><div class="panel"><div class="panel-label">TECHNIK</div><div class="panel-main">SVG + CSS</div><small>Prototyp ohne externe Bibliotheken</small></div></div>
+ <div class="disclaimer">Design-Prototyp mit fiktiven Gebäudestufen. Die Landschaft ist eine eigens erstellte SVG-Illustration, noch nicht aus dem Spiel übernommen. Eigenständige Vorschau im Test-Repository: Sie verändert weder den Spielstand noch die Game-Command.</div>
+</div>
+<script>
+(function(){
+ const scene=document.getElementById('scene');
+ const levels=[{name:'Junge Kolonie',detail:'Wenige Gebäude, vereinzelte Lichtpunkte und ruhige Landschaft.',metal:3,crystal:2,shipyard:0},{name:'Mittlere Kolonie',detail:'Zusätzliche Fördergebäude, aktive Lichtpunkte, gelegentlicher Transportflug.',metal:12,crystal:8,shipyard:3},{name:'Ausgebaute Industrie',detail:'Dichtere Anlagen, ein Energieturm, zusätzliche Stadtlichter und Shuttle-Verkehr.',metal:27,crystal:24,shipyard:12}];
+ const modeNames={off:'Animation pausiert',subtle:'Dezent animiert',full:'Verstärkte Animation'};
+ function stage(n){scene.dataset.stage=String(n); const d=levels[n];document.getElementById('stage-name').textContent=d.name;document.getElementById('stage-detail').textContent=d.detail;document.getElementById('metal').textContent='Stufe '+d.metal;document.getElementById('crystal').textContent='Stufe '+d.crystal;document.getElementById('shipyard').textContent='Stufe '+d.shipyard;document.querySelectorAll('[data-stage-btn]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.stageBtn===n)));}
+ function mode(m){scene.dataset.mode=m;document.getElementById('mode-name').textContent=modeNames[m];document.querySelectorAll('[data-mode-btn]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.modeBtn===m)));}
+ document.querySelectorAll('[data-stage-btn]').forEach(b=>b.addEventListener('click',()=>stage(+b.dataset.stageBtn)));
+ document.querySelectorAll('[data-mode-btn]').forEach(b=>b.addEventListener('click',()=>mode(b.dataset.modeBtn)));
+})();
+</script>
+</body>
+</html>
