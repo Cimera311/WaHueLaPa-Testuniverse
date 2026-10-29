@@ -93,8 +93,9 @@ jobs:
 
       - name: Include standalone planet preview in TEST Pages
         run: |
-          mkdir -p dist/preview
+          mkdir -p dist/preview dist/test-only
           cp test-only/PlanetScenePreview.html dist/preview/planet-scene.html
+          cp test-only/PlanetScenePreview.html dist/test-only/PlanetScenePreview.html
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
