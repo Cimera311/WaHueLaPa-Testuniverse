@@ -91,6 +91,11 @@ jobs:
           git commit -m "chore(test): sync from LIVE main"
           git push origin HEAD:main
 
+      - name: Include standalone planet preview in TEST Pages
+        run: |
+          mkdir -p dist/preview
+          cp test-only/PlanetScenePreview.html dist/preview/planet-scene.html
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
